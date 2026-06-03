@@ -27,21 +27,23 @@ export function useAgents() {
   })
   const [backendAvailable, setBackendAvailable] = useState(false)
 
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(agents))
+  }, [agents])
+
   const fetchAgents = useCallback(async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/agents`)
+      const res = await fetch(`${BACKEND_URL}/api/agents`, { signal: AbortSignal.timeout(8000) })
       if (!res.ok) throw new Error('Backend error')
       const data = await res.json()
-      const mapped = data.map(mapBackendAgent)
-      setAgents(mapped)
+      if (data.length > 0) {
+        const mapped = data.map(mapBackendAgent)
+        setAgents(mapped)
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(mapped))
+      }
       setBackendAvailable(true)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(mapped))
     } catch {
       setBackendAvailable(false)
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY)
-        if (stored) setAgents(JSON.parse(stored))
-      } catch {}
     }
   }, [])
 
@@ -49,69 +51,81 @@ export function useAgents() {
     fetchAgents()
   }, [fetchAgents])
 
-  useEffect(() => {
-    if (!backendAvailable) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(agents))
-    }
-  }, [agents, backendAvailable])
-
   const addAgent = async (input: Omit<Agent, 'id' | 'createdAt'>): Promise<Agent> => {
-    if (backendAvailable) {
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/agents`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: input.name,
-            description: input.description,
-            wallet_address: input.walletAddress,
-            status: input.status,
-            alert_threshold: input.alertThreshold,
-          }),
-        })
-        if (!res.ok) throw new Error('Backend error')
-        const data = await res.json()
-        const newAgent = mapBackendAgent(data)
-        setAgents(prev => [newAgent, ...prev])
-        return newAgent
-      } catch {}
-    }
-    // Fallback local
-    const newAgent: Agent = {
+    const localAgent: Agent = {
       ...input,
       id: `agt_${Date.now()}`,
       createdAt: new Date().toISOString(),
     }
-    setAgents(prev => [newAgent, ...prev])
-    return newAgent
+    setAgents(prev => {
+      const updated = [localAgent, ...prev]
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+      return updated
+    })
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/agents`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: input.name,
+          description: input.description,
+          wallet_address: input.walletAddress,
+          status: input.status,
+          alert_threshold: input.alertThreshold,
+        }),
+        signal: AbortSignal.timeout(8000)
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const backendAgent = mapBackendAgent(data)
+        setAgents(prev => {
+          const updated = prev.map(a => a.id === localAgent.id ? backendAgent : a)
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+          return updated
+        })
+        setBackendAvailable(true)
+        return backendAgent
+      }
+    } catch {}
+
+    return localAgent
   }
 
   const updateAgent = async (id: string, updates: Partial<Omit<Agent, 'id' | 'createdAt'>>) => {
-    if (backendAvailable) {
-      try {
-        const body: any = {}
-        if (updates.name) body.name = updates.name
-        if (updates.description) body.description = updates.description
-        if (updates.walletAddress) body.wallet_address = updates.walletAddress
-        if (updates.status) body.status = updates.status
-        if (updates.alertThreshold) body.alert_threshold = updates.alertThreshold
-        await fetch(`${BACKEND_URL}/api/agents/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        })
-      } catch {}
-    }
-    setAgents(prev => prev.map(a => a.id === id ? { ...a, ...updates } : a))
+    setAgents(prev => {
+      const updated = prev.map(a => a.id === id ? { ...a, ...updates } : a)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+      return updated
+    })
+    try {
+      const body: any = {}
+      if (updates.name) body.name = updates.name
+      if (updates.description !== undefined) body.description = updates.description
+      if (updates.walletAddress) body.wallet_address = updates.walletAddress
+      if (updates.status) body.status = updates.status
+      if (updates.alertThreshold !== undefined) body.alert_threshold = updates.alertThreshold
+      await fetch(`${BACKEND_URL}/api/agents/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(8000)
+      })
+    } catch {}
   }
 
   const deleteAgent = async (id: string) => {
-    if (backendAvailable) {
-      try {
-        await fetch(`${BACKEND_URL}/api/agents/${id}`, { method: 'DELETE' })
-      } catch {}
-    }
-    setAgents(prev => prev.filter(a => a.id !== id))
+    setAgents(prev => {
+      const updated = prev.filter(a => a.id !== id)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+      return updated
+    })
+    try {
+      await fetch(`${BACKEND_URL}/api/agents/${id}`, {
+        method: 'DELETE',
+        signal: AbortSignal.timeout(8000)
+      })
+    } catch {}
   }
 
   const setAgentStatus = (id: string, status: AgentStatus) => {
