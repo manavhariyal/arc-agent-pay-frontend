@@ -1,28 +1,23 @@
 import { useState, useEffect, useCallback } from 'react'
-import type { SpendingRule } from '@/types'
+import type { Agent, AgentStatus } from '@/types'
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://arc-agent-pay-backend.onrender.com'
-const STORAGE_KEY = 'arc_spending_rules_v2'
+const STORAGE_KEY = 'arc_agents_v2'
 
-function mapBackendRule(r: any): SpendingRule {
+function mapBackendAgent(a: any): Agent {
   return {
-    id: r.id,
-    agentId: r.agent_id,
-    agentName: r.agents?.name ?? r.agentName ?? '',
-    type: 'recurring',
-    amount: r.amount?.toString() ?? '0',
-    interval: r.interval,
-    recipient: r.recipient_address,
-    recipientLabel: r.name,
-    status: r.is_active ? 'active' : 'inactive',
-    createdAt: r.created_at,
-    executionCount: r.execution_count ?? 0,
-    lastExecutedAt: r.last_executed_at ?? null,
+    id: a.id,
+    name: a.name,
+    description: a.description ?? '',
+    walletAddress: a.wallet_address,
+    status: a.status ?? 'active',
+    alertThreshold: a.alert_threshold ?? 10,
+    createdAt: a.created_at,
   }
 }
 
-export function useSpendingRules() {
-  const [rules, setRules] = useState<SpendingRule[]>(() => {
+export function useAgents() {
+  const [agents, setAgents] = useState<Agent[]>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
       return stored ? JSON.parse(stored) : []
@@ -30,115 +25,110 @@ export function useSpendingRules() {
       return []
     }
   })
-  const [loading, setLoading] = useState(false)
   const [backendAvailable, setBackendAvailable] = useState(false)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(rules))
-  }, [rules])
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(agents))
+  }, [agents])
 
-  const fetchRules = useCallback(async () => {
+  const fetchAgents = useCallback(async () => {
     try {
-      setLoading(true)
-      const res = await fetch(`${BACKEND_URL}/api/rules`, { signal: AbortSignal.timeout(8000) })
+      const res = await fetch(`${BACKEND_URL}/api/agents`, { signal: AbortSignal.timeout(8000) })
       if (!res.ok) throw new Error('Backend error')
       const data = await res.json()
       if (data.length > 0) {
-        const mapped = data.map(mapBackendRule)
-        setRules(mapped)
+        const mapped = data.map(mapBackendAgent)
+        setAgents(mapped)
         localStorage.setItem(STORAGE_KEY, JSON.stringify(mapped))
       }
       setBackendAvailable(true)
     } catch {
       setBackendAvailable(false)
-    } finally {
-      setLoading(false)
     }
   }, [])
 
   useEffect(() => {
-    fetchRules()
-  }, [fetchRules])
+    fetchAgents()
+  }, [fetchAgents])
 
-  const addRule = async (input: Omit<SpendingRule, 'id' | 'createdAt'>): Promise<SpendingRule> => {
-    const localRule: SpendingRule = {
+  const addAgent = async (input: Omit<Agent, 'id' | 'createdAt'>): Promise<Agent> => {
+    const localAgent: Agent = {
       ...input,
-      id: `rule_${Date.now()}`,
+      id: `agt_${Date.now()}`,
       createdAt: new Date().toISOString(),
     }
-    setRules(prev => {
-      const updated = [localRule, ...prev]
+    setAgents(prev => {
+      const updated = [localAgent, ...prev]
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
       return updated
     })
     try {
-      const res = await fetch(`${BACKEND_URL}/api/rules`, {
+      const res = await fetch(`${BACKEND_URL}/api/agents`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          agent_id: input.agentId,
-          name: input.recipientLabel || `Rule for ${input.agentName}`,
-          amount: parseFloat(input.amount),
-          interval: input.interval || 'daily',
-          recipient_address: input.recipient,
+          name: input.name,
+          description: input.description,
+          wallet_address: input.walletAddress,
+          status: input.status,
+          alert_threshold: input.alertThreshold,
         }),
         signal: AbortSignal.timeout(8000)
       })
       if (res.ok) {
         const data = await res.json()
-        const backendRule = mapBackendRule(data)
-        setRules(prev => {
-          const updated = prev.map(r => r.id === localRule.id ? backendRule : r)
+        const backendAgent = mapBackendAgent(data)
+        setAgents(prev => {
+          const updated = prev.map(a => a.id === localAgent.id ? backendAgent : a)
           localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
           return updated
         })
         setBackendAvailable(true)
-        return backendRule
+        return backendAgent
       }
     } catch {}
-    return localRule
+    return localAgent
   }
 
-  const deleteRule = async (id: string) => {
-    setRules(prev => {
-      const updated = prev.filter(r => r.id !== id)
+  const updateAgent = async (id: string, updates: Partial<Omit<Agent, 'id' | 'createdAt'>>) => {
+    setAgents(prev => {
+      const updated = prev.map(a => a.id === id ? { ...a, ...updates } : a)
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
       return updated
     })
     try {
-      await fetch(`${BACKEND_URL}/api/rules/${id}`, { method: 'DELETE', signal: AbortSignal.timeout(8000) })
+      const body: any = {}
+      if (updates.name) body.name = updates.name
+      if (updates.description !== undefined) body.description = updates.description
+      if (updates.walletAddress) body.wallet_address = updates.walletAddress
+      if (updates.status) body.status = updates.status
+      if (updates.alertThreshold !== undefined) body.alert_threshold = updates.alertThreshold
+      await fetch(`${BACKEND_URL}/api/agents/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(8000)
+      })
     } catch {}
   }
 
-  const toggleRule = async (id: string) => {
-    setRules(prev => {
-      const updated = prev.map(r =>
-        r.id === id ? { ...r, status: r.status === 'active' ? 'inactive' : 'active' } : r
-      )
+  const deleteAgent = async (id: string) => {
+    setAgents(prev => {
+      const updated = prev.filter(a => a.id !== id)
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
       return updated
     })
     try {
-      await fetch(`${BACKEND_URL}/api/rules/${id}/toggle`, { method: 'PATCH', signal: AbortSignal.timeout(8000) })
+      await fetch(`${BACKEND_URL}/api/agents/${id}`, {
+        method: 'DELETE',
+        signal: AbortSignal.timeout(8000)
+      })
     } catch {}
   }
 
-  const executeNow = async (id: string) => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/rules/${id}/execute`, { method: 'POST', signal: AbortSignal.timeout(30000) })
-      return await res.json()
-    } catch {
-      return { success: false, message: 'Failed to execute' }
-    }
+  const setAgentStatus = (id: string, status: AgentStatus) => {
+    updateAgent(id, { status })
   }
 
-  const updateRule = async (id: string, updates: Partial<SpendingRule>) => {
-    setRules(prev => {
-      const updated = prev.map(r => r.id === id ? { ...r, ...updates } : r)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-      return updated
-    })
-  }
-
-  return { rules, addRule, updateRule, deleteRule, toggleRule, executeNow, loading, backendAvailable, refetch: fetchRules }
+  return { agents, addAgent, updateAgent, deleteAgent, setAgentStatus, refetch: fetchAgents, backendAvailable }
 }
