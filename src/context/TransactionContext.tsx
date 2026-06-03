@@ -22,7 +22,6 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     }
   })
 
-  // Always save to localStorage when transactions change
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(all))
   }, [all])
@@ -32,20 +31,12 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
       ...tx,
       id: `tx_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
     }
-    setAll(prev => {
-      const updated = [newTx, ...prev]
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-      return updated
-    })
+    setAll(prev => [newTx, ...prev])
     return newTx
   }
 
   const updateStatus = (hash: string, status: StoredTransaction['status']) => {
-    setAll(prev => {
-      const updated = prev.map(tx => (tx.hash === hash ? { ...tx, status } : tx))
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-      return updated
-    })
+    setAll(prev => prev.map(tx => (tx.hash === hash ? { ...tx, status } : tx)))
   }
 
   const clearAll = () => {
