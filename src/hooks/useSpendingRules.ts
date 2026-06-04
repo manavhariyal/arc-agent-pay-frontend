@@ -2,9 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import type { SpendingRule } from '@/types'
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://arc-agent-pay-backend.onrender.com'
-const STORAGE_KEY = 'arc_spending_rules_v2'
+const STORAGE_KEY = 'arc_spending_rules_v3'
 
-// Helper to map backend rule to frontend SpendingRule format
 function mapBackendRule(r: any): SpendingRule {
   return {
     id: r.id,
@@ -25,7 +24,7 @@ function mapBackendRule(r: any): SpendingRule {
 export function useSpendingRules() {
   const [rules, setRules] = useState<SpendingRule[]>(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY)
+      const stored = localStorage.getItem('arc_spending_rules_v3')
       return stored ? JSON.parse(stored) : []
     } catch {
       return []
@@ -34,24 +33,24 @@ export function useSpendingRules() {
   const [loading, setLoading] = useState(false)
   const [backendAvailable, setBackendAvailable] = useState(false)
 
-  // Fetch rules from backend
+  useEffect(() => {
+    localStorage.setItem('arc_spending_rules_v3', JSON.stringify(rules))
+  }, [rules])
+
   const fetchRules = useCallback(async () => {
     try {
       setLoading(true)
-      const res = await fetch(`${BACKEND_URL}/api/rules`)
+      const res = await fetch(`${BACKEND_URL}/api/rules`, { signal: AbortSignal.timeout(8000) })
       if (!res.ok) throw new Error('Backend error')
       const data = await res.json()
-      const mapped = data.map(mapBackendRule)
-      setRules(mapped)
+      if (data.length > 0) {
+        const mapped = data.map(mapBackendRule)
+        setRules(mapped)
+        localStorage.setItem('arc_spending_rules_v3', JSON.stringify(mapped))
+      }
       setBackendAvailable(true)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(mapped))
     } catch {
-      // Fall back to localStorage if backend is unavailable
       setBackendAvailable(false)
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY)
-        if (stored) setRules(JSON.parse(stored))
-      } catch {}
     } finally {
       setLoading(false)
     }
@@ -61,89 +60,84 @@ export function useSpendingRules() {
     fetchRules()
   }, [fetchRules])
 
-  // Save to localStorage as fallback whenever rules change
-  useEffect(() => {
-    if (!backendAvailable) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(rules))
-    }
-  }, [rules, backendAvailable])
-
   const addRule = async (input: Omit<SpendingRule, 'id' | 'createdAt'>): Promise<SpendingRule> => {
-    if (backendAvailable) {
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/rules`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            agent_id: input.agentId,
-            name: input.recipientLabel || `Rule for ${input.agentName}`,
-            amount: parseFloat(input.amount),
-            interval: input.interval || 'daily',
-            recipient_address: input.recipient,
-          }),
-        })
-        if (!res.ok) throw new Error('Backend error')
-        const data = await res.json()
-        const newRule = mapBackendRule(data)
-        setRules(prev => [newRule, ...prev])
-        return newRule
-      } catch {
-        // Fall through to local storage
-      }
-    }
-
-    // Fallback: local only
-    const newRule: SpendingRule = {
+    const localRule: SpendingRule = {
       ...input,
       id: `rule_${Date.now()}`,
       createdAt: new Date().toISOString(),
     }
-    setRules(prev => [newRule, ...prev])
-    return newRule
-  }
-
-  const updateRule = async (id: string, updates: Partial<SpendingRule>) => {
-    setRules(prev => prev.map(r => r.id === id ? { ...r, ...updates } : r))
+    setRules(prev => {
+      const updated = [localRule, ...prev]
+      localStorage.setItem('arc_spending_rules_v3', JSON.stringify(updated))
+      return updated
+    })
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/rules`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agent_id: input.agentId,
+          name: input.recipientLabel || `Rule for ${input.agentName}`,
+          amount: parseFloat(input.amount),
+          interval: input.interval || 'daily',
+          recipient_address: input.recipient,
+        }),
+        signal: AbortSignal.timeout(8000)
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const backendRule = mapBackendRule(data)
+        setRules(prev => {
+          const updated = prev.map(r => r.id === localRule.id ? backendRule : r)
+          localStorage.setItem('arc_spending_rules_v3', JSON.stringify(updated))
+          return updated
+        })
+        setBackendAvailable(true)
+        return backendRule
+      }
+    } catch {}
+    return localRule
   }
 
   const deleteRule = async (id: string) => {
-    if (backendAvailable) {
-      try {
-        await fetch(`${BACKEND_URL}/api/rules/${id}`, { method: 'DELETE' })
-      } catch {}
-    }
-    setRules(prev => prev.filter(r => r.id !== id))
+    setRules(prev => {
+      const updated = prev.filter(r => r.id !== id)
+      localStorage.setItem('arc_spending_rules_v3', JSON.stringify(updated))
+      return updated
+    })
+    try {
+      await fetch(`${BACKEND_URL}/api/rules/${id}`, { method: 'DELETE', signal: AbortSignal.timeout(8000) })
+    } catch {}
   }
 
   const toggleRule = async (id: string) => {
-    if (backendAvailable) {
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/rules/${id}/toggle`, { method: 'PATCH' })
-        if (res.ok) {
-          const data = await res.json()
-          const updated = mapBackendRule(data)
-          setRules(prev => prev.map(r => r.id === id ? updated : r))
-          return
-        }
-      } catch {}
-    }
-    // Fallback
-    setRules(prev =>
-      prev.map(r =>
+    setRules(prev => {
+      const updated = prev.map(r =>
         r.id === id ? { ...r, status: r.status === 'active' ? 'inactive' : 'active' } : r
       )
-    )
+      localStorage.setItem('arc_spending_rules_v3', JSON.stringify(updated))
+      return updated
+    })
+    try {
+      await fetch(`${BACKEND_URL}/api/rules/${id}/toggle`, { method: 'PATCH', signal: AbortSignal.timeout(8000) })
+    } catch {}
   }
 
   const executeNow = async (id: string) => {
-    if (!backendAvailable) return { success: false, message: 'Backend not available' }
     try {
-      const res = await fetch(`${BACKEND_URL}/api/rules/${id}/execute`, { method: 'POST' })
-      const data = await res.json()
-      return data
+      const res = await fetch(`${BACKEND_URL}/api/rules/${id}/execute`, { method: 'POST', signal: AbortSignal.timeout(30000) })
+      return await res.json()
     } catch {
       return { success: false, message: 'Failed to execute' }
     }
+  }
+
+  const updateRule = async (id: string, updates: Partial<SpendingRule>) => {
+    setRules(prev => {
+      const updated = prev.map(r => r.id === id ? { ...r, ...updates } : r)
+      localStorage.setItem('arc_spending_rules_v3', JSON.stringify(updated))
+      return updated
+    })
   }
 
   return { rules, addRule, updateRule, deleteRule, toggleRule, executeNow, loading, backendAvailable, refetch: fetchRules }
