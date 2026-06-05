@@ -7,34 +7,60 @@ import { motion } from "framer-motion";
 import { BarChart3, TrendingUp, Send, Wallet, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { WalletButton } from "@/components/wallet/WalletButton";
+import { useState, useEffect } from "react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
   ResponsiveContainer, BarChart, Bar, Cell,
 } from "recharts";
 import { formatUnits } from "viem";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://arc-agent-pay-backend.onrender.com'
+
 export default function Analytics() {
   const { address, isConnected } = useWallet();
   const { transactions } = useTransactions(address);
   const { agents } = useAgents();
+  const [backendTxs, setBackendTxs] = useState<any[]>([]);
 
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/api/transactions`)
+      .then(r => r.json())
+      .then(data => setBackendTxs(data))
+      .catch(() => {});
+  }, []);
+
+  // Combine local + backend transactions
   const confirmedTxs = transactions.filter((tx) => tx.status === "confirmed");
+  const backendConfirmed = backendTxs.filter(tx => tx.status === "success");
 
-  const txsByDate = confirmedTxs.reduce(
-    (acc, tx) => {
-      const date = new Date(tx.timestamp).toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-      });
-      if (!acc[date]) acc[date] = { date, amount: 0, count: 0 };
-      try {
-        acc[date].amount += parseFloat(formatUnits(BigInt(tx.amount), 18));
-      } catch {}
-      acc[date].count += 1;
-      return acc;
-    },
-    {} as Record<string, { date: string; amount: number; count: number }>
-  );
+  // Total volume from both sources
+  const localVolume = confirmedTxs.reduce((acc, tx) => {
+    try { return acc + parseFloat(formatUnits(BigInt(tx.amount), 18)); } catch { return acc; }
+  }, 0);
+  const backendVolume = backendConfirmed.reduce((acc, tx) => acc + parseFloat(tx.amount || 0), 0);
+  const totalVolume = localVolume + backendVolume;
+
+  const totalTxCount = transactions.length + backendTxs.length;
+  const totalConfirmed = confirmedTxs.length + backendConfirmed.length;
+  const avgTx = totalConfirmed > 0 ? totalVolume / totalConfirmed : 0;
+  const failedCount = transactions.filter(t => t.status === "failed").length + backendTxs.filter(t => t.status === "failed").length;
+
+  // Chart data — combine both sources by date
+  const txsByDate: Record<string, { date: string; amount: number; count: number }> = {};
+
+  confirmedTxs.forEach(tx => {
+    const date = new Date(tx.timestamp).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    if (!txsByDate[date]) txsByDate[date] = { date, amount: 0, count: 0 };
+    try { txsByDate[date].amount += parseFloat(formatUnits(BigInt(tx.amount), 18)); } catch {}
+    txsByDate[date].count += 1;
+  });
+
+  backendConfirmed.forEach(tx => {
+    const date = new Date(tx.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    if (!txsByDate[date]) txsByDate[date] = { date, amount: 0, count: 0 };
+    txsByDate[date].amount += parseFloat(tx.amount || 0);
+    txsByDate[date].count += 1;
+  });
 
   const last7 = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
@@ -44,20 +70,15 @@ export default function Analytics() {
 
   const chartData = last7.map((date) => txsByDate[date] ?? { date, amount: 0, count: 0 });
 
-  const totalVolume = confirmedTxs.reduce((acc, tx) => {
-    try { return acc + parseFloat(formatUnits(BigInt(tx.amount), 18)); } catch { return acc; }
-  }, 0);
-  const avgTx = confirmedTxs.length > 0 ? totalVolume / confirmedTxs.length : 0;
-  const failedRate = transactions.length > 0
-    ? (transactions.filter((tx) => tx.status === "failed").length / transactions.length) * 100
-    : 0;
-
   const agentVolumes = agents.map((agent) => {
-    const agentTxs = confirmedTxs.filter((tx) => tx.agentId === agent.id);
-    const vol = agentTxs.reduce((acc, tx) => {
+    const agentLocalTxs = confirmedTxs.filter((tx) => tx.agentId === agent.id);
+    const agentBackendTxs = backendConfirmed.filter(tx => tx.agent_id === agent.id);
+    const localVol = agentLocalTxs.reduce((acc, tx) => {
       try { return acc + parseFloat(formatUnits(BigInt(tx.amount), 18)); } catch { return acc; }
     }, 0);
-    return { name: agent.name, volume: vol, count: agentTxs.length };
+    const backendVol = agentBackendTxs.reduce((acc, tx) => acc + parseFloat(tx.amount || 0), 0);
+    const vol = localVol + backendVol;
+    return { name: agent.name, volume: vol, count: agentLocalTxs.length + agentBackendTxs.length };
   }).filter(a => a.volume > 0).sort((a, b) => b.volume - a.volume);
 
   const COLORS = ["#6366f1", "#06b6d4", "#8b5cf6", "#10b981", "#f59e0b"];
@@ -100,37 +121,12 @@ export default function Analytics() {
           <p className="text-white/40 text-sm">Real-time metrics from your Arc Testnet transactions.</p>
         </div>
 
-        {/* Stat cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
           {[
-            {
-              label: "Total Volume",
-              value: formatUSDC(totalVolume),
-              sub: `${confirmedTxs.length} confirmed txs`,
-              icon: TrendingUp,
-              color: "indigo",
-            },
-            {
-              label: "Avg Transaction",
-              value: formatUSDC(avgTx),
-              sub: "per confirmed tx",
-              icon: Send,
-              color: "cyan",
-            },
-            {
-              label: "Total Transactions",
-              value: String(transactions.length),
-              sub: `${transactions.filter(t => t.status === "pending").length} pending`,
-              icon: BarChart3,
-              color: "purple",
-            },
-            {
-              label: "Active Agents",
-              value: String(agents.filter(a => a.status === "active").length),
-              sub: `${agents.length} total registered`,
-              icon: Users,
-              color: "emerald",
-            },
+            { label: "Total Volume", value: formatUSDC(totalVolume), sub: `${totalConfirmed} confirmed txs`, icon: TrendingUp, color: "indigo" },
+            { label: "Avg Transaction", value: formatUSDC(avgTx), sub: "per confirmed tx", icon: Send, color: "cyan" },
+            { label: "Total Transactions", value: String(totalTxCount), sub: `${failedCount} failed`, icon: BarChart3, color: "purple" },
+            { label: "Active Agents", value: String(agents.filter(a => a.status === "active").length), sub: `${agents.length} total registered`, icon: Users, color: "emerald" },
           ].map((stat) => {
             const Icon = stat.icon;
             return (
@@ -146,7 +142,7 @@ export default function Analytics() {
           })}
         </div>
 
-        {transactions.length === 0 ? (
+        {totalTxCount === 0 ? (
           <div className="glass-panel-elevated rounded-2xl p-12 text-center">
             <Send className="w-10 h-10 mx-auto mb-4 text-indigo-400/30" />
             <h2 className="text-white font-bold text-lg mb-2">No data yet</h2>
@@ -173,7 +169,7 @@ export default function Analytics() {
                       <XAxis dataKey="date" stroke="rgba(255,255,255,0.3)" fontSize={11} tickLine={false} axisLine={false} dy={8} />
                       <YAxis stroke="rgba(255,255,255,0.3)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} dx={-4} />
                       <RechartsTooltip
-                        contentStyle={{ backgroundColor: "rgba(10,13,25,0.95)", backdropFilter: "blur(20px)", borderColor: "rgba(99,102,241,0.3)", color: "#fff", borderRadius: "12px", fontSize: 12, fontWeight: 600 }}
+                        contentStyle={{ backgroundColor: "rgba(10,13,25,0.95)", borderColor: "rgba(99,102,241,0.3)", color: "#fff", borderRadius: "12px", fontSize: 12 }}
                         formatter={(value: number) => [formatUSDC(value), "Volume"]}
                       />
                       <Area type="monotone" dataKey="amount" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorVol)" />
@@ -196,7 +192,7 @@ export default function Analytics() {
                       <XAxis dataKey="date" stroke="rgba(255,255,255,0.3)" fontSize={11} tickLine={false} axisLine={false} dy={8} />
                       <YAxis stroke="rgba(255,255,255,0.3)" fontSize={11} tickLine={false} axisLine={false} dx={-4} allowDecimals={false} />
                       <RechartsTooltip
-                        contentStyle={{ backgroundColor: "rgba(10,13,25,0.95)", backdropFilter: "blur(20px)", borderColor: "rgba(6,182,212,0.3)", color: "#fff", borderRadius: "12px", fontSize: 12, fontWeight: 600 }}
+                        contentStyle={{ backgroundColor: "rgba(10,13,25,0.95)", borderColor: "rgba(6,182,212,0.3)", color: "#fff", borderRadius: "12px", fontSize: 12 }}
                         cursor={{ fill: "rgba(255,255,255,0.03)" }}
                         formatter={(value: number) => [value, "Transactions"]}
                       />
