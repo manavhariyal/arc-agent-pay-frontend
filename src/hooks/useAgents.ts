@@ -34,26 +34,29 @@ export function useAgents() {
 
   const fetchAgents = useCallback(async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/agents`, { 
-        signal: AbortSignal.timeout(10000) 
+      const res = await fetch(`${BACKEND_URL}/api/agents`, {
+        signal: AbortSignal.timeout(10000)
       })
       if (!res.ok) throw new Error('Backend error')
       const data = await res.json()
       setBackendAvailable(true)
-      
-      if (data.length === 0) return
-      
+
       const backendAgents = data.map(mapBackendAgent)
-      
+
+      // CRITICAL: Merge backend agents WITH local agents
+      // Never remove local agents that backend doesn't know about yet!
       setAgents(prev => {
         const backendIds = new Set(backendAgents.map((a: Agent) => a.id))
-        const localOnly = prev.filter(a => !backendIds.has(a.id) && !a.id.startsWith('agt_'))
-        const merged = [...backendAgents, ...localOnly]
+        // Keep local agents that are NOT in backend yet
+        const localOnlyAgents = prev.filter(a => !backendIds.has(a.id))
+        // Merge: backend agents + local only agents
+        const merged = [...backendAgents, ...localOnlyAgents]
         localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
         return merged
       })
     } catch {
       setBackendAvailable(false)
+      // Keep using localStorage as is - never clear it!
     }
   }, [])
 
@@ -68,16 +71,18 @@ export function useAgents() {
       id: tempId,
       createdAt: new Date().toISOString(),
     }
-    
+
+    // Save locally immediately - this persists across page changes!
     setAgents(prev => {
       const updated = [localAgent, ...prev]
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
       return updated
     })
 
+    // Try backend in background - keep retrying
     setSaving(true)
     const tryBackend = async () => {
-      for (let attempt = 0; attempt < 10; attempt++) {
+      for (let attempt = 0; attempt < 12; attempt++) {
         try {
           const res = await fetch(`${BACKEND_URL}/api/agents`, {
             method: 'POST',
@@ -94,6 +99,7 @@ export function useAgents() {
           if (res.ok) {
             const data = await res.json()
             const backendAgent = mapBackendAgent(data)
+            // Replace temp agent with real backend agent
             setAgents(prev => {
               const updated = prev.map(a => a.id === tempId ? backendAgent : a)
               localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
@@ -108,7 +114,7 @@ export function useAgents() {
       }
       setSaving(false)
     }
-    
+
     tryBackend()
     return localAgent
   }
