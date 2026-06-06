@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import type { Agent, AgentStatus } from '@/types'
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://arc-agent-pay-backend.onrender.com'
-const STORAGE_KEY = 'arc_agents_v2'
+const STORAGE_KEY = 'arc_agents_v3'
 
 function mapBackendAgent(a: any): Agent {
   return {
@@ -13,19 +13,6 @@ function mapBackendAgent(a: any): Agent {
     status: a.status ?? 'active',
     alertThreshold: a.alert_threshold ?? 10,
     createdAt: a.created_at,
-  }
-}
-
-// Retry fetch until success or timeout
-async function fetchWithRetry(url: string, options: RequestInit = {}, maxWaitMs = 60000): Promise<Response> {
-  const start = Date.now()
-  while (true) {
-    try {
-      const res = await fetch(url, { ...options, signal: AbortSignal.timeout(15000) })
-      if (res.ok) return res
-    } catch {}
-    if (Date.now() - start > maxWaitMs) throw new Error('Server timeout')
-    await new Promise(r => setTimeout(r, 3000))
   }
 }
 
@@ -47,14 +34,24 @@ export function useAgents() {
 
   const fetchAgents = useCallback(async () => {
     try {
-      const res = await fetchWithRetry(`${BACKEND_URL}/api/agents`)
+      const res = await fetch(`${BACKEND_URL}/api/agents`, { 
+        signal: AbortSignal.timeout(10000) 
+      })
+      if (!res.ok) throw new Error('Backend error')
       const data = await res.json()
-      if (data.length > 0) {
-        const mapped = data.map(mapBackendAgent)
-        setAgents(mapped)
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(mapped))
-      }
       setBackendAvailable(true)
+      
+      if (data.length === 0) return
+      
+      const backendAgents = data.map(mapBackendAgent)
+      
+      setAgents(prev => {
+        const backendIds = new Set(backendAgents.map((a: Agent) => a.id))
+        const localOnly = prev.filter(a => !backendIds.has(a.id) && !a.id.startsWith('agt_'))
+        const merged = [...backendAgents, ...localOnly]
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+        return merged
+      })
     } catch {
       setBackendAvailable(false)
     }
@@ -65,46 +62,54 @@ export function useAgents() {
   }, [fetchAgents])
 
   const addAgent = async (input: Omit<Agent, 'id' | 'createdAt'>): Promise<Agent> => {
-    // Save locally first so it shows immediately
+    const tempId = `agt_${Date.now()}`
     const localAgent: Agent = {
       ...input,
-      id: `agt_${Date.now()}`,
+      id: tempId,
       createdAt: new Date().toISOString(),
     }
+    
     setAgents(prev => {
       const updated = [localAgent, ...prev]
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
       return updated
     })
 
-    // Try backend with retry (waits for Render to wake up)
     setSaving(true)
-    try {
-      const res = await fetchWithRetry(`${BACKEND_URL}/api/agents`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: input.name,
-          description: input.description,
-          wallet_address: input.walletAddress,
-          status: input.status,
-          alert_threshold: input.alertThreshold,
-        }),
-      }, 60000)
-      const data = await res.json()
-      const backendAgent = mapBackendAgent(data)
-      setAgents(prev => {
-        const updated = prev.map(a => a.id === localAgent.id ? backendAgent : a)
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-        return updated
-      })
-      setBackendAvailable(true)
-    } catch {
-      // Keep local agent if backend fails
-    } finally {
+    const tryBackend = async () => {
+      for (let attempt = 0; attempt < 10; attempt++) {
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/agents`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: input.name,
+              description: input.description,
+              wallet_address: input.walletAddress,
+              status: input.status,
+              alert_threshold: input.alertThreshold,
+            }),
+            signal: AbortSignal.timeout(15000)
+          })
+          if (res.ok) {
+            const data = await res.json()
+            const backendAgent = mapBackendAgent(data)
+            setAgents(prev => {
+              const updated = prev.map(a => a.id === tempId ? backendAgent : a)
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+              return updated
+            })
+            setBackendAvailable(true)
+            setSaving(false)
+            return
+          }
+        } catch {}
+        await new Promise(r => setTimeout(r, 5000))
+      }
       setSaving(false)
     }
-
+    
+    tryBackend()
     return localAgent
   }
 
@@ -121,10 +126,11 @@ export function useAgents() {
       if (updates.walletAddress) body.wallet_address = updates.walletAddress
       if (updates.status) body.status = updates.status
       if (updates.alertThreshold !== undefined) body.alert_threshold = updates.alertThreshold
-      await fetchWithRetry(`${BACKEND_URL}/api/agents/${id}`, {
+      await fetch(`${BACKEND_URL}/api/agents/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
+        signal: AbortSignal.timeout(15000)
       })
     } catch {}
   }
@@ -136,7 +142,10 @@ export function useAgents() {
       return updated
     })
     try {
-      await fetchWithRetry(`${BACKEND_URL}/api/agents/${id}`, { method: 'DELETE' })
+      await fetch(`${BACKEND_URL}/api/agents/${id}`, {
+        method: 'DELETE',
+        signal: AbortSignal.timeout(15000)
+      })
     } catch {}
   }
 
