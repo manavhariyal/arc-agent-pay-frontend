@@ -16,6 +16,19 @@ function mapBackendAgent(a: any): Agent {
   }
 }
 
+// Retry fetch until success or timeout
+async function fetchWithRetry(url: string, options: RequestInit = {}, maxWaitMs = 60000): Promise<Response> {
+  const start = Date.now()
+  while (true) {
+    try {
+      const res = await fetch(url, { ...options, signal: AbortSignal.timeout(15000) })
+      if (res.ok) return res
+    } catch {}
+    if (Date.now() - start > maxWaitMs) throw new Error('Server timeout')
+    await new Promise(r => setTimeout(r, 3000))
+  }
+}
+
 export function useAgents() {
   const [agents, setAgents] = useState<Agent[]>(() => {
     try {
@@ -26,6 +39,7 @@ export function useAgents() {
     }
   })
   const [backendAvailable, setBackendAvailable] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(agents))
@@ -33,8 +47,7 @@ export function useAgents() {
 
   const fetchAgents = useCallback(async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/agents`, { signal: AbortSignal.timeout(30000) })
-      if (!res.ok) throw new Error('Backend error')
+      const res = await fetchWithRetry(`${BACKEND_URL}/api/agents`)
       const data = await res.json()
       if (data.length > 0) {
         const mapped = data.map(mapBackendAgent)
@@ -52,6 +65,7 @@ export function useAgents() {
   }, [fetchAgents])
 
   const addAgent = async (input: Omit<Agent, 'id' | 'createdAt'>): Promise<Agent> => {
+    // Save locally first so it shows immediately
     const localAgent: Agent = {
       ...input,
       id: `agt_${Date.now()}`,
@@ -62,8 +76,11 @@ export function useAgents() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
       return updated
     })
+
+    // Try backend with retry (waits for Render to wake up)
+    setSaving(true)
     try {
-      const res = await fetch(`${BACKEND_URL}/api/agents`, {
+      const res = await fetchWithRetry(`${BACKEND_URL}/api/agents`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -73,20 +90,21 @@ export function useAgents() {
           status: input.status,
           alert_threshold: input.alertThreshold,
         }),
-        signal: AbortSignal.timeout(30000)
+      }, 60000)
+      const data = await res.json()
+      const backendAgent = mapBackendAgent(data)
+      setAgents(prev => {
+        const updated = prev.map(a => a.id === localAgent.id ? backendAgent : a)
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+        return updated
       })
-      if (res.ok) {
-        const data = await res.json()
-        const backendAgent = mapBackendAgent(data)
-        setAgents(prev => {
-          const updated = prev.map(a => a.id === localAgent.id ? backendAgent : a)
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-          return updated
-        })
-        setBackendAvailable(true)
-        return backendAgent
-      }
-    } catch {}
+      setBackendAvailable(true)
+    } catch {
+      // Keep local agent if backend fails
+    } finally {
+      setSaving(false)
+    }
+
     return localAgent
   }
 
@@ -103,11 +121,10 @@ export function useAgents() {
       if (updates.walletAddress) body.wallet_address = updates.walletAddress
       if (updates.status) body.status = updates.status
       if (updates.alertThreshold !== undefined) body.alert_threshold = updates.alertThreshold
-      await fetch(`${BACKEND_URL}/api/agents/${id}`, {
+      await fetchWithRetry(`${BACKEND_URL}/api/agents/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
-        signal: AbortSignal.timeout(30000)
       })
     } catch {}
   }
@@ -119,10 +136,7 @@ export function useAgents() {
       return updated
     })
     try {
-      await fetch(`${BACKEND_URL}/api/agents/${id}`, {
-        method: 'DELETE',
-        signal: AbortSignal.timeout(30000)
-      })
+      await fetchWithRetry(`${BACKEND_URL}/api/agents/${id}`, { method: 'DELETE' })
     } catch {}
   }
 
@@ -130,5 +144,5 @@ export function useAgents() {
     updateAgent(id, { status })
   }
 
-  return { agents, addAgent, updateAgent, deleteAgent, setAgentStatus, refetch: fetchAgents, backendAvailable }
+  return { agents, addAgent, updateAgent, deleteAgent, setAgentStatus, refetch: fetchAgents, backendAvailable, saving }
 }
