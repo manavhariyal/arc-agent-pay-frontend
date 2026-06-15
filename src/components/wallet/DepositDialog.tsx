@@ -59,7 +59,7 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
       await recordDeposit(parseFloat(amount), tx)
       await fetchBalance()
       setStep('success')
-      toast({ title: '✅ Deposit Successful!', description: `${amount} USDC deposited!` })
+      toast({ title: 'Deposit Successful!', description: amount + ' USDC deposited!' })
     } catch (err: any) {
       setStep('input')
       toast({ title: 'Transaction failed', description: err.message || 'Please try again.', variant: 'destructive' })
@@ -72,6 +72,8 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
     setTxHash('')
     onClose()
   }
+
+  const explorerUrl = ARC_NETWORK.explorerUrl + '/tx/' + txHash
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -91,12 +93,11 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
             <div className="glass-panel rounded-xl p-4 border border-cyan-500/20">
               <div className="text-xs text-white/40 mb-1">Your Current Balance</div>
               <div className="text-2xl font-black text-cyan-400">
-                {userBalance ? `${parseFloat(userBalance.balance.toString()).toFixed(4)} USDC` : '0.0000 USDC'}
+                {userBalance ? parseFloat(userBalance.balance.toString()).toFixed(4) + ' USDC' : '0.0000 USDC'}
               </div>
               <div className="text-xs text-white/30 mt-1">
-                Total deposited: {userBalance ? parseFloat(userBalance.total_deposited.toString()).toFixed(4) : '0'} USDC
-                {' · '}
-                Total spent: {userBalance ? parseFloat(userBalance.total_spent.toString()).toFixed(4) : '0'} USDC
+                {'Total deposited: ' + (userBalance ? parseFloat(userBalance.total_deposited.toString()).toFixed(4) : '0') + ' USDC'}
+                {' · Total spent: ' + (userBalance ? parseFloat(userBalance.total_spent.toString()).toFixed(4) : '0') + ' USDC'}
               </div>
             </div>
 
@@ -134,7 +135,7 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
               </div>
               {amount && parseFloat(amount) > 0 && (
                 <p className="text-xs text-white/30">
-                  💡 Funds {Math.floor(parseFloat(amount))} hours of 1 USDC/hr payments
+                  {'Funds ' + Math.floor(parseFloat(amount)) + ' hours of 1 USDC/hr payments'}
                 </p>
               )}
             </div>
@@ -145,7 +146,7 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
               className="w-full h-11 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white rounded-xl font-bold disabled:opacity-40"
             >
               <Zap className="w-4 h-4 mr-2" />
-              Deposit {amount ? `${amount} USDC` : 'USDC'}
+              {'Deposit ' + (amount ? amount + ' USDC' : 'USDC')}
             </Button>
           </div>
         )}
@@ -168,12 +169,12 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
               <CheckCircle2 className="w-8 h-8 text-emerald-400" />
             </div>
             <div>
-              <p className="text-white font-bold text-lg">Deposit Successful! 🎉</p>
-              <p className="text-white/40 text-sm mt-1">{amount} USDC added to your balance</p>
+              <p className="text-white font-bold text-lg">Deposit Successful!</p>
+              <p className="text-white/40 text-sm mt-1">{amount + ' USDC added to your balance'}</p>
             </div>
             {txHash && (
               
-                href={`${ARC_NETWORK.explorerUrl}/tx/${txHash}`}
+                href={explorerUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300"
