@@ -173,15 +173,13 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
               <p className="text-white/40 text-sm mt-1">{amount + ' USDC added to your balance'}</p>
             </div>
             {txHash && (
-              
-                href={explorerUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300"
-              >
-                View on Arcscan <ExternalLink className="w-3 h-3" />
-              </a>
-            )}
+  <button
+    onClick={() => window.open(explorerUrl, '_blank')}
+    className="inline-flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300"
+  >
+    View on Arcscan <ExternalLink className="w-3 h-3" />
+  </button>
+)}
             <Button onClick={handleClose} className="w-full h-11 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white rounded-xl font-bold">
               Done
             </Button>
