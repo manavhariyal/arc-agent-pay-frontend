@@ -288,7 +288,8 @@ export default function PayPage() {
                 Powered by Arc Agent Pay
               </span>
               
-                href="https://x.com/manavhariyal"
+                <a
+                  href="https://x.com/manavhariyal"
                 target="_blank"
                 rel="noreferrer"
                 className="hover:text-white/40 transition-colors"
