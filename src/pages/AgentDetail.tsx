@@ -40,17 +40,18 @@ export default function AgentDetail() {
   const agent = agents.find((a) => a.id === id);
 
   const copyPayLink = () => {
-    if (!agent?.walletAddress) return;
+    if (!agent || !agent.walletAddress) return;
     const base = window.location.origin;
-    navigator.clipboard.writeText(`${base}/pay/${agent.walletAddress}`);
+    const link = base + "/pay/" + agent.walletAddress;
+    navigator.clipboard.writeText(link);
     setCopiedPayLink(true);
     setTimeout(() => setCopiedPayLink(false), 2000);
   };
 
   const { data: balanceData, isLoading: isBalanceLoading } = useBalance({
-    address: agent?.walletAddress as `0x${string}` | undefined,
+    address: agent ? (agent.walletAddress as `0x${string}`) : undefined,
     chainId: arcTestnet.id,
-    query: { enabled: !!agent?.walletAddress },
+    query: { enabled: !!agent && !!agent.walletAddress },
   });
 
   if (!agent) {
@@ -74,9 +75,14 @@ export default function AgentDetail() {
   const stats = useMemo(() => {
     const confirmed = agentTxs.filter((tx) => tx.status === "confirmed");
     const totalSent = confirmed.reduce((sum, tx) => {
-      try { return sum + parseFloat(formatUnits(BigInt(tx.amount), 18)); } catch { return sum; }
+      try {
+        return sum + parseFloat(formatUnits(BigInt(tx.amount), 18));
+      } catch {
+        return sum;
+      }
     }, 0);
-    const successRate = agentTxs.length > 0 ? Math.round((confirmed.length / agentTxs.length) * 100) : 100;
+    const successRate =
+      agentTxs.length > 0 ? Math.round((confirmed.length / agentTxs.length) * 100) : 100;
 
     const today = new Date();
     const days: { date: string; usdc: number; label: string }[] = [];
@@ -88,11 +94,21 @@ export default function AgentDetail() {
       const usdc = confirmed
         .filter((tx) => new Date(tx.timestamp).toISOString().slice(0, 10) === key)
         .reduce((sum, tx) => {
-          try { return sum + parseFloat(formatUnits(BigInt(tx.amount), 18)); } catch { return sum; }
+          try {
+            return sum + parseFloat(formatUnits(BigInt(tx.amount), 18));
+          } catch {
+            return sum;
+          }
         }, 0);
       days.push({ date: key, usdc: parseFloat(usdc.toFixed(4)), label });
     }
-    return { totalSent, txCount: agentTxs.length, confirmedCount: confirmed.length, successRate, sparkline: days };
+    return {
+      totalSent,
+      txCount: agentTxs.length,
+      confirmedCount: confirmed.length,
+      successRate,
+      sparkline: days,
+    };
   }, [agentTxs]);
 
   const formattedBalance = balanceData
@@ -110,20 +126,29 @@ export default function AgentDetail() {
     paused: "text-amber-400 border-amber-400/30 bg-amber-400/10",
   };
 
+  const explorerAddressUrl = ARC_NETWORK.explorerUrl + "/address/" + agent.walletAddress;
+
   return (
     <AppLayout>
       <div className="space-y-8 max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-start gap-5 justify-between">
           <div className="flex items-start gap-4">
             <Link href="/agents">
-              <Button variant="ghost" size="icon" className="text-white/40 hover:text-white rounded-full glass-panel h-11 w-11 shrink-0 mt-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white/40 hover:text-white rounded-full glass-panel h-11 w-11 shrink-0 mt-1"
+              >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             </Link>
             <div>
               <div className="flex flex-wrap items-center gap-3 mb-1">
                 <h1 className="text-4xl font-black tracking-tight text-white">{agent.name}</h1>
-                <Badge variant="outline" className={cn("capitalize px-3 py-1 rounded-full text-sm font-bold", statusColors[agent.status])}>
+                <Badge
+                  variant="outline"
+                  className={cn("capitalize px-3 py-1 rounded-full text-sm font-bold", statusColors[agent.status])}
+                >
                   {agent.status}
                 </Badge>
               </div>
@@ -140,9 +165,15 @@ export default function AgentDetail() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="glass-panel-elevated border-indigo-500/20 rounded-xl">
-                <SelectItem value="active" className="text-white rounded-lg">Active</SelectItem>
-                <SelectItem value="idle" className="text-white rounded-lg">Idle</SelectItem>
-                <SelectItem value="paused" className="text-white rounded-lg">Paused</SelectItem>
+                <SelectItem value="active" className="text-white rounded-lg">
+                  Active
+                </SelectItem>
+                <SelectItem value="idle" className="text-white rounded-lg">
+                  Idle
+                </SelectItem>
+                <SelectItem value="paused" className="text-white rounded-lg">
+                  Paused
+                </SelectItem>
               </SelectContent>
             </Select>
             <Button
@@ -151,9 +182,13 @@ export default function AgentDetail() {
               className="glass-panel border-indigo-500/20 text-white/70 hover:text-white rounded-full h-11 px-5 font-semibold hover:border-indigo-500/50 transition-all"
             >
               {copiedPayLink ? (
-                <><CheckCircle2 className="w-4 h-4 mr-2 text-emerald-400" /> Copied!</>
+                <>
+                  <CheckCircle2 className="w-4 h-4 mr-2 text-emerald-400" /> Copied!
+                </>
               ) : (
-                <><Link2 className="w-4 h-4 mr-2" /> Share Pay Link</>
+                <>
+                  <Link2 className="w-4 h-4 mr-2" /> Share Pay Link
+                </>
               )}
             </Button>
             <Button
@@ -181,7 +216,9 @@ export default function AgentDetail() {
                 {isBalanceLoading ? (
                   <div className="h-12 w-48 bg-white/5 rounded-xl animate-pulse" />
                 ) : formattedBalance !== null ? (
-                  <span>{formattedBalance} <span className="text-xl font-medium text-indigo-300">USDC</span></span>
+                  <span>
+                    {formattedBalance} <span className="text-xl font-medium text-indigo-300">USDC</span>
+                  </span>
                 ) : (
                   <span className="text-white/20">—</span>
                 )}
@@ -193,7 +230,7 @@ export default function AgentDetail() {
                 <span className="font-mono text-cyan-400 text-sm">{agent.walletAddress}</span>
                 <Copy className="w-3.5 h-3.5 text-white/30" />
                 
-                  href={`${ARC_NETWORK.explorerUrl}/address/${agent.walletAddress}`}
+                  href={explorerAddressUrl}
                   target="_blank"
                   rel="noreferrer"
                   onClick={(e) => e.stopPropagation()}
@@ -235,7 +272,7 @@ export default function AgentDetail() {
               {
                 label: "Total Transactions",
                 value: stats.txCount.toString(),
-                unit: `${stats.confirmedCount} confirmed`,
+                unit: stats.confirmedCount + " confirmed",
                 icon: <History className="w-4 h-4" />,
                 color: "text-cyan-400",
                 border: "border-l-cyan-500",
@@ -243,21 +280,32 @@ export default function AgentDetail() {
               },
               {
                 label: "Success Rate",
-                value: `${stats.successRate}%`,
-                unit: stats.txCount === 0 ? "no transactions yet" : `${stats.txCount - stats.confirmedCount} failed`,
+                value: stats.successRate + "%",
+                unit: stats.txCount === 0 ? "no transactions yet" : (stats.txCount - stats.confirmedCount) + " failed",
                 icon: <TrendingUp className="w-4 h-4" />,
-                color: stats.successRate === 100 ? "text-emerald-400" : stats.successRate >= 80 ? "text-amber-400" : "text-rose-400",
-                border: stats.successRate === 100 ? "border-l-emerald-500" : stats.successRate >= 80 ? "border-l-amber-500" : "border-l-rose-500",
+                color:
+                  stats.successRate === 100
+                    ? "text-emerald-400"
+                    : stats.successRate >= 80
+                    ? "text-amber-400"
+                    : "text-rose-400",
+                border:
+                  stats.successRate === 100
+                    ? "border-l-emerald-500"
+                    : stats.successRate >= 80
+                    ? "border-l-amber-500"
+                    : "border-l-rose-500",
                 glow: stats.successRate === 100 ? "bg-emerald-500/5" : "bg-amber-500/5",
               },
             ].map((s) => (
-              <motion.div
-                key={s.label}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-              >
+              <motion.div key={s.label} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
                 <Card className={cn("glass-panel-elevated p-5 rounded-2xl border-l-4 relative overflow-hidden", s.border)}>
-                  <div className={cn("absolute right-0 top-0 w-32 h-32 rounded-full blur-[50px] pointer-events-none", s.glow)} />
+                  <div
+                    className={cn(
+                      "absolute right-0 top-0 w-32 h-32 rounded-full blur-[50px] pointer-events-none",
+                      s.glow
+                    )}
+                  />
                   <div className="flex justify-between items-start mb-2 relative z-10">
                     <span className="text-white/40 text-xs font-semibold uppercase tracking-wider">{s.label}</span>
                     <span className={s.color}>{s.icon}</span>
@@ -307,7 +355,7 @@ export default function AgentDetail() {
                       tick={{ fill: "rgba(255,255,255,0.25)", fontSize: 10 }}
                       tickLine={false}
                       axisLine={false}
-                      tickFormatter={(v: number) => v === 0 ? "" : `${v}`}
+                      tickFormatter={(v) => (v === 0 ? "" : String(v))}
                     />
                     <Tooltip
                       contentStyle={{
@@ -317,7 +365,7 @@ export default function AgentDetail() {
                         color: "white",
                         fontSize: 12,
                       }}
-                      formatter={(value: number) => [`${value} USDC`, "Sent"]}
+                      formatter={(value) => [value + " USDC", "Sent"]}
                       labelStyle={{ color: "rgba(255,255,255,0.5)", marginBottom: 2 }}
                       cursor={{ stroke: "rgba(99,102,241,0.3)" }}
                     />
@@ -339,10 +387,16 @@ export default function AgentDetail() {
 
         <Tabs defaultValue="transactions">
           <TabsList className="glass-panel border-indigo-500/20 mb-6 p-1.5 rounded-full inline-flex">
-            <TabsTrigger value="transactions" className="rounded-full px-5 py-2 text-sm font-bold data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+            <TabsTrigger
+              value="transactions"
+              className="rounded-full px-5 py-2 text-sm font-bold data-[state=active]:bg-indigo-600 data-[state=active]:text-white"
+            >
               <History className="w-4 h-4 mr-2" /> Transactions ({agentTxs.length})
             </TabsTrigger>
-            <TabsTrigger value="rules" className="rounded-full px-5 py-2 text-sm font-bold data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+            <TabsTrigger
+              value="rules"
+              className="rounded-full px-5 py-2 text-sm font-bold data-[state=active]:bg-indigo-600 data-[state=active]:text-white"
+            >
               <Settings className="w-4 h-4 mr-2" /> Rules ({agentRules.length})
             </TabsTrigger>
           </TabsList>
@@ -364,38 +418,64 @@ export default function AgentDetail() {
                 <div className="divide-y divide-white/[0.04]">
                   {agentTxs.map((tx) => {
                     let usdcAmount = 0;
-                    try { usdcAmount = parseFloat(formatUnits(BigInt(tx.amount), 18)); } catch {}
+                    try {
+                      usdcAmount = parseFloat(formatUnits(BigInt(tx.amount), 18));
+                    } catch {}
                     return (
-                      <div key={tx.id} className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors">
+                      <div
+                        key={tx.id}
+                        className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors"
+                      >
                         <div className="flex items-center gap-4">
-                          <div className={cn(
-                            "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border",
-                            tx.status === "confirmed" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                            tx.status === "pending" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
-                            "bg-rose-500/10 text-rose-400 border-rose-500/20"
-                          )}>
-                            {tx.status === "confirmed" ? <CheckCircle2 className="w-5 h-5" /> :
-                             tx.status === "pending" ? <Clock className="w-5 h-5" /> :
-                             <XCircle className="w-5 h-5" />}
+                          <div
+                            className={cn(
+                              "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border",
+                              tx.status === "confirmed"
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                : tx.status === "pending"
+                                ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                                : "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                            )}
+                          >
+                            {tx.status === "confirmed" ? (
+                              <CheckCircle2 className="w-5 h-5" />
+                            ) : tx.status === "pending" ? (
+                              <Clock className="w-5 h-5" />
+                            ) : (
+                              <XCircle className="w-5 h-5" />
+                            )}
                           </div>
                           <div>
                             <div className="font-semibold text-white text-sm flex items-center gap-2">
                               To: {truncateAddress(tx.toAddress)}
-                              <a href={`${ARC_NETWORK.explorerUrl}/tx/${tx.hash}`} target="_blank" rel="noreferrer" className="text-white/30 hover:text-indigo-400 transition-colors">
+                              
+                                href={ARC_NETWORK.explorerUrl + "/tx/" + tx.hash}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-white/30 hover:text-indigo-400 transition-colors"
+                              >
                                 <ExternalLink className="w-3.5 h-3.5" />
                               </a>
                             </div>
                             {tx.note && <div className="text-xs text-white/30 italic">{tx.note}</div>}
-                            <div className="text-xs text-white/30 mt-0.5">{new Date(tx.timestamp).toLocaleString()}</div>
+                            <div className="text-xs text-white/30 mt-0.5">
+                              {new Date(tx.timestamp).toLocaleString()}
+                            </div>
                           </div>
                         </div>
                         <div className="text-right">
                           <div className="font-mono font-black text-white text-lg">-{formatUSDC(usdcAmount)}</div>
-                          <Badge variant="outline" className={cn("text-[10px] uppercase font-bold tracking-wider mt-1",
-                            tx.status === "confirmed" ? "text-emerald-400 border-emerald-400/20 bg-emerald-400/10" :
-                            tx.status === "pending" ? "text-amber-400 border-amber-400/20 bg-amber-400/10" :
-                            "text-rose-400 border-rose-400/20 bg-rose-400/10"
-                          )}>
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "text-[10px] uppercase font-bold tracking-wider mt-1",
+                              tx.status === "confirmed"
+                                ? "text-emerald-400 border-emerald-400/20 bg-emerald-400/10"
+                                : tx.status === "pending"
+                                ? "text-amber-400 border-amber-400/20 bg-amber-400/10"
+                                : "text-rose-400 border-rose-400/20 bg-rose-400/10"
+                            )}
+                          >
                             {tx.status}
                           </Badge>
                         </div>
@@ -422,27 +502,43 @@ export default function AgentDetail() {
               ) : (
                 <div className="divide-y divide-white/[0.04]">
                   {agentRules.map((rule) => (
-                    <div key={rule.id} className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors">
+                    <div
+                      key={rule.id}
+                      className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors"
+                    >
                       <div className="flex items-center gap-4">
-                        <div className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border",
-                          rule.status === "active" ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" : "bg-white/[0.04] text-white/30 border-white/10"
-                        )}>
+                        <div
+                          className={cn(
+                            "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border",
+                            rule.status === "active"
+                              ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20"
+                              : "bg-white/[0.04] text-white/30 border-white/10"
+                          )}
+                        >
                           <Shield className="w-5 h-5" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-semibold text-white text-sm capitalize">{rule.type} Payment</span>
-                            <Badge variant="outline" className={cn("text-[10px] uppercase font-bold",
-                              rule.status === "active" ? "text-emerald-400 border-emerald-400/30 bg-emerald-400/10" : "text-white/30 border-white/10"
-                            )}>
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                "text-[10px] uppercase font-bold",
+                                rule.status === "active"
+                                  ? "text-emerald-400 border-emerald-400/30 bg-emerald-400/10"
+                                  : "text-white/30 border-white/10"
+                              )}
+                            >
                               {rule.status}
                             </Badge>
                           </div>
                           <div className="text-sm text-white/50">
-                            <span className="font-mono font-bold text-cyan-400">{formatUSDC(parseFloat(rule.amount))}</span>
+                            <span className="font-mono font-bold text-cyan-400">
+                              {formatUSDC(parseFloat(rule.amount))}
+                            </span>
                             {rule.interval && <span> · {rule.interval}</span>}
-                            {" · "}{rule.recipientLabel ?? truncateAddress(rule.recipient)}
+                            {" · "}
+                            {rule.recipientLabel ?? truncateAddress(rule.recipient)}
                           </div>
                         </div>
                       </div>
@@ -451,9 +547,18 @@ export default function AgentDetail() {
                           variant="ghost"
                           size="icon"
                           onClick={() => toggleRule(rule.id)}
-                          className={cn("rounded-full h-9 w-9", rule.status === "active" ? "text-emerald-400 hover:bg-emerald-500/10" : "text-white/30 hover:bg-white/10")}
+                          className={cn(
+                            "rounded-full h-9 w-9",
+                            rule.status === "active"
+                              ? "text-emerald-400 hover:bg-emerald-500/10"
+                              : "text-white/30 hover:bg-white/10"
+                          )}
                         >
-                          {rule.status === "active" ? <ToggleRight className="w-5 h-5" /> : <ToggleLeft className="w-5 h-5" />}
+                          {rule.status === "active" ? (
+                            <ToggleRight className="w-5 h-5" />
+                          ) : (
+                            <ToggleLeft className="w-5 h-5" />
+                          )}
                         </Button>
                         <Button
                           variant="ghost"
