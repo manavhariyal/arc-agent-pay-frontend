@@ -31,25 +31,26 @@ export default function AgentDetail() {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const { address } = useWallet();
-  const { agents, updateAgent, deleteAgent, setAgentStatus } = useAgents();
+  const { agents, setAgentStatus } = useAgents();
   const { transactions } = useTransactions(address);
   const { rules, deleteRule, toggleRule } = useSpendingRules();
   const [sendOpen, setSendOpen] = useState(false);
   const [copiedPayLink, setCopiedPayLink] = useState(false);
 
+  const agent = agents.find((a) => a.id === id);
+
   const copyPayLink = () => {
-    const base = window.location.origin + (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
-    navigator.clipboard.writeText(`${base}/pay/${agent?.address}`);
+    if (!agent?.walletAddress) return;
+    const base = window.location.origin;
+    navigator.clipboard.writeText(`${base}/pay/${agent.walletAddress}`);
     setCopiedPayLink(true);
     setTimeout(() => setCopiedPayLink(false), 2000);
   };
 
-  const agent = agents.find((a) => a.id === id);
-
   const { data: balanceData, isLoading: isBalanceLoading } = useBalance({
-    address: agent?.address as `0x${string}` | undefined,
+    address: agent?.walletAddress as `0x${string}` | undefined,
     chainId: arcTestnet.id,
-    query: { enabled: !!agent?.address },
+    query: { enabled: !!agent?.walletAddress },
   });
 
   if (!agent) {
@@ -112,7 +113,6 @@ export default function AgentDetail() {
   return (
     <AppLayout>
       <div className="space-y-8 max-w-6xl mx-auto">
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-start gap-5 justify-between">
           <div className="flex items-start gap-4">
             <Link href="/agents">
@@ -165,7 +165,6 @@ export default function AgentDetail() {
           </div>
         </div>
 
-        {/* Balance cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <Card className="glass-panel-elevated p-7 rounded-2xl md:col-span-2 relative overflow-hidden border-l-4 border-l-indigo-500">
             <div className="absolute right-0 top-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px] pointer-events-none" />
@@ -189,12 +188,12 @@ export default function AgentDetail() {
               </motion.div>
               <div
                 className="flex items-center gap-3 glass-panel px-4 py-2 rounded-full w-fit cursor-pointer hover:border-indigo-500/40 transition-colors"
-                onClick={() => copyToClipboard(agent.address)}
+                onClick={() => copyToClipboard(agent.walletAddress)}
               >
-                <span className="font-mono text-cyan-400 text-sm">{agent.address}</span>
+                <span className="font-mono text-cyan-400 text-sm">{agent.walletAddress}</span>
                 <Copy className="w-3.5 h-3.5 text-white/30" />
-                <a
-                  href={`${ARC_NETWORK.explorerUrl}/address/${agent.address}`}
+                
+                  href={`${ARC_NETWORK.explorerUrl}/address/${agent.walletAddress}`}
                   target="_blank"
                   rel="noreferrer"
                   onClick={(e) => e.stopPropagation()}
@@ -221,9 +220,7 @@ export default function AgentDetail() {
           </Card>
         </div>
 
-        {/* Activity Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          {/* Stat cards */}
           <div className="flex flex-col gap-4">
             {[
               {
@@ -274,7 +271,6 @@ export default function AgentDetail() {
             ))}
           </div>
 
-          {/* Sparkline chart */}
           <Card className="glass-panel-elevated p-6 rounded-2xl lg:col-span-2 relative overflow-hidden border border-indigo-500/10">
             <div className="absolute right-0 top-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px] pointer-events-none" />
             <div className="flex justify-between items-center mb-5 relative z-10">
@@ -341,7 +337,6 @@ export default function AgentDetail() {
           </Card>
         </div>
 
-        {/* Tabs */}
         <Tabs defaultValue="transactions">
           <TabsList className="glass-panel border-indigo-500/20 mb-6 p-1.5 rounded-full inline-flex">
             <TabsTrigger value="transactions" className="rounded-full px-5 py-2 text-sm font-bold data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
@@ -481,7 +476,7 @@ export default function AgentDetail() {
       <SendPaymentDialog
         open={sendOpen}
         onClose={() => setSendOpen(false)}
-        prefilledAddress={agent.address}
+        prefilledAddress={agent.walletAddress}
         prefilledAgentId={agent.id}
       />
     </AppLayout>
