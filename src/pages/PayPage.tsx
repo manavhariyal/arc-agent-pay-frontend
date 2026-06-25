@@ -42,7 +42,7 @@ export default function PayPage() {
 
   const { address, isConnected, isOnArcTestnet, connectMetaMask, switchToArc, formattedBalance } = useWallet();
   const { agents } = useAgents();
-  const { addTransaction } = useTransactions();
+  const { addTransaction } = useTransactions(address);
   const { toast } = useToast();
 
   const [amount, setAmount] = useState("");
@@ -51,16 +51,14 @@ export default function PayPage() {
   const [copiedAddr, setCopiedAddr] = useState(false);
   const [sent, setSent] = useState(false);
 
-  // Find if this address is a registered agent
   const matchedAgent = agents.find(
-    (a) => a.address.toLowerCase() === targetAddress?.toLowerCase()
+    (a) => a.walletAddress?.toLowerCase() === targetAddress?.toLowerCase()
   );
 
-  // Live balance of target address
   const { data: targetBalance, isLoading: balanceLoading } = useBalance({
     address: targetAddress,
     chainId: arcTestnet.id,
-    query: { enabled: isAddress(targetAddress ?? "") },
+    query: { enabled: !!targetAddress && isAddress(targetAddress) },
   });
 
   const {
@@ -71,7 +69,6 @@ export default function PayPage() {
     reset,
   } = useSendTransaction();
 
-  // Handle confirmed hash
   useEffect(() => {
     if (!txHash) return;
     try {
@@ -79,7 +76,7 @@ export default function PayPage() {
         hash: txHash,
         fromAddress: address!,
         toAddress: targetAddress,
-        amount: parseUnits(amount, 18).toString(),
+        amount: parseUnits(amount || "0", 18).toString(),
         agentId: matchedAgent?.id,
         agentName: matchedAgent?.name,
         note: note || undefined,
@@ -91,7 +88,7 @@ export default function PayPage() {
     reset();
     toast({
       title: "Payment sent!",
-      description: `${formatUSDC(parseFloat(amount))} → ${truncateAddress(targetAddress)}`,
+      description: `${formatUSDC(parseFloat(amount || "0"))} → ${truncateAddress(targetAddress)}`,
     });
   }, [txHash]);
 
@@ -110,7 +107,7 @@ export default function PayPage() {
     });
   };
 
-  const pageUrl = window.location.href;
+  const pageUrl = typeof window !== "undefined" ? window.location.href : "";
 
   const copyLink = () => {
     navigator.clipboard.writeText(pageUrl);
@@ -145,13 +142,11 @@ export default function PayPage() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden flex flex-col">
-      {/* Background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-indigo-500/8 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[120px]" />
       </div>
 
-      {/* Top nav */}
       <nav className="relative z-10 flex items-center justify-between p-5 max-w-5xl mx-auto w-full">
         <Link href="/">
           <button className="flex items-center gap-2 text-white/40 hover:text-white/80 text-sm transition-colors group">
@@ -165,13 +160,10 @@ export default function PayPage() {
         </div>
       </nav>
 
-      {/* Main content */}
       <main className="relative z-10 flex-1 flex items-start justify-center p-5 pt-4">
         <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
 
-          {/* Left — agent identity */}
           <div className="space-y-6">
-            {/* Agent card */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -180,7 +172,6 @@ export default function PayPage() {
             >
               <div className="h-1 w-full bg-gradient-to-r from-indigo-500 via-cyan-500 to-indigo-500" />
               <div className="p-8">
-                {/* Avatar / icon */}
                 <div className="flex items-start gap-6 mb-6">
                   <div className="relative shrink-0">
                     <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 border border-indigo-500/30 flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.2)]">
@@ -209,13 +200,12 @@ export default function PayPage() {
                   </div>
                 </div>
 
-                {/* Address row */}
                 <div className="flex items-center gap-3 glass-panel rounded-xl px-4 py-3 mb-5">
                   <span className="font-mono text-white/60 text-sm truncate flex-1">{targetAddress}</span>
                   <button onClick={copyAddr} className="text-white/30 hover:text-indigo-400 transition-colors shrink-0">
                     {copiedAddr ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                   </button>
-                  <a
+                  
                     href={`${ARC_NETWORK.explorerUrl}/address/${targetAddress}`}
                     target="_blank"
                     rel="noreferrer"
@@ -225,7 +215,6 @@ export default function PayPage() {
                   </a>
                 </div>
 
-                {/* Balance */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="glass-panel rounded-xl p-4">
                     <div className="text-[10px] uppercase tracking-wider text-white/30 font-semibold mb-2">Current Balance</div>
@@ -247,7 +236,6 @@ export default function PayPage() {
               </div>
             </motion.div>
 
-            {/* Share card */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -279,7 +267,7 @@ export default function PayPage() {
                     {[
                       { label: "Twitter / X", url: `https://twitter.com/intent/tweet?text=Send+me+USDC+on+Arc+Testnet+%F0%9F%94%97&url=${encodeURIComponent(pageUrl)}` },
                     ].map((s) => (
-                      <a
+                      
                         key={s.label}
                         href={s.url}
                         target="_blank"
@@ -295,13 +283,12 @@ export default function PayPage() {
               </div>
             </motion.div>
 
-            {/* Powered by footer */}
             <div className="flex items-center justify-between text-white/20 text-xs px-1">
               <span className="flex items-center gap-2">
                 <Shield className="w-3 h-3" />
                 Powered by Arc Agent Pay
               </span>
-              <a
+              
                 href="https://x.com/manavhariyal"
                 target="_blank"
                 rel="noreferrer"
@@ -312,7 +299,6 @@ export default function PayPage() {
             </div>
           </div>
 
-          {/* Right — send panel */}
           <motion.div
             initial={{ opacity: 0, x: 16 }}
             animate={{ opacity: 1, x: 0 }}
@@ -367,7 +353,7 @@ export default function PayPage() {
                     </div>
                     <h3 className="text-white font-bold text-lg mb-1">Payment sent!</h3>
                     <p className="text-white/40 text-sm mb-5">
-                      {formatUSDC(parseFloat(amount))} is on its way — confirming on-chain now.
+                      {formatUSDC(parseFloat(amount || "0"))} is on its way — confirming on-chain now.
                     </p>
                     <Button
                       onClick={() => { setSent(false); setAmount(""); setNote(""); }}
@@ -379,13 +365,11 @@ export default function PayPage() {
                   </motion.div>
                 ) : (
                   <>
-                    {/* Your balance */}
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-white/30">Your balance</span>
                       <span className="font-mono font-bold text-cyan-400">{formattedBalance ?? "…"} USDC</span>
                     </div>
 
-                    {/* Amount */}
                     <div className="space-y-2">
                       <Label className="text-white/40 text-xs font-semibold uppercase tracking-wider">Amount (USDC)</Label>
                       <div className="relative">
@@ -400,7 +384,6 @@ export default function PayPage() {
                         />
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 font-bold text-sm">USDC</span>
                       </div>
-                      {/* Presets */}
                       <div className="flex gap-2 flex-wrap">
                         {PRESETS.map((p) => (
                           <button
@@ -418,7 +401,6 @@ export default function PayPage() {
                       </div>
                     </div>
 
-                    {/* Note */}
                     <div className="space-y-2">
                       <Label className="text-white/40 text-xs font-semibold uppercase tracking-wider">Note (optional)</Label>
                       <Input
@@ -429,7 +411,6 @@ export default function PayPage() {
                       />
                     </div>
 
-                    {/* Send button */}
                     <Button
                       onClick={handleSend}
                       disabled={isPending || !amount || parseFloat(amount) <= 0}
