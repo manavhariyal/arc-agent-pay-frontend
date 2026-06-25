@@ -88,7 +88,7 @@ export default function PayPage() {
     reset();
     toast({
       title: "Payment sent!",
-      description: `${formatUSDC(parseFloat(amount || "0"))} → ${truncateAddress(targetAddress)}`,
+      description: `${formatUSDC(parseFloat(amount || "0"))} sent`,
     });
   }, [txHash]);
 
@@ -108,6 +108,8 @@ export default function PayPage() {
   };
 
   const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+  const explorerAddressUrl = ARC_NETWORK.explorerUrl + "/address/" + targetAddress;
+  const twitterShareUrl = "https://twitter.com/intent/tweet?text=Send+me+USDC+on+Arc+Testnet&url=" + encodeURIComponent(pageUrl);
 
   const copyLink = () => {
     navigator.clipboard.writeText(pageUrl);
@@ -206,7 +208,7 @@ export default function PayPage() {
                     {copiedAddr ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                   </button>
                   
-                    href={`${ARC_NETWORK.explorerUrl}/address/${targetAddress}`}
+                    href={explorerAddressUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="text-white/30 hover:text-indigo-400 transition-colors shrink-0"
@@ -264,20 +266,15 @@ export default function PayPage() {
                     Anyone with this link can send USDC directly to this address on Arc Testnet — no account needed.
                   </p>
                   <div className="flex gap-2 flex-wrap">
-                    {[
-                      { label: "Twitter / X", url: `https://twitter.com/intent/tweet?text=Send+me+USDC+on+Arc+Testnet+%F0%9F%94%97&url=${encodeURIComponent(pageUrl)}` },
-                    ].map((s) => (
-                      
-                        key={s.label}
-                        href={s.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg glass-panel text-white/40 hover:text-white/80 text-xs transition-colors border border-white/[0.06] hover:border-indigo-500/30"
-                      >
-                        <XIcon className="w-3 h-3" />
-                        Share on X
-                      </a>
-                    ))}
+                    
+                      href={twitterShareUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg glass-panel text-white/40 hover:text-white/80 text-xs transition-colors border border-white/[0.06] hover:border-indigo-500/30"
+                    >
+                      <XIcon className="w-3 h-3" />
+                      Share on X
+                    </a>
                   </div>
                 </div>
               </div>
