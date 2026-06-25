@@ -268,7 +268,8 @@ export default function PayPage() {
                   </p>
                   <div className="flex gap-2 flex-wrap">
                     
-                      href={twitterShareUrl}
+                      <a
+                        href={twitterShareUrl}
                       target="_blank"
                       rel="noreferrer"
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg glass-panel text-white/40 hover:text-white/80 text-xs transition-colors border border-white/[0.06] hover:border-indigo-500/30"
