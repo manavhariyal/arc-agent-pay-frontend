@@ -208,7 +208,8 @@ export default function PayPage() {
                     {copiedAddr ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                   </button>
                   
-                    href={explorerAddressUrl}
+                    <a
+                      href={explorerAddressUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="text-white/30 hover:text-indigo-400 transition-colors shrink-0"
