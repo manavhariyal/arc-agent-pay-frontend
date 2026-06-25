@@ -28,7 +28,7 @@ function XIcon({ className }: { className?: string }) {
 const PRESETS = [0.1, 0.5, 1, 5, 10];
 
 function QRCode({ value, size = 160 }: { value: string; size?: number }) {
-  const src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(value)}&size=${size}x${size}&bgcolor=0a0d19&color=818cf8&qzone=2`;
+  const src = "https://api.qrserver.com/v1/create-qr-code/?data=" + encodeURIComponent(value) + "&size=" + size + "x" + size + "&bgcolor=0a0d19&color=818cf8&qzone=2";
   return (
     <div className="rounded-2xl overflow-hidden border border-indigo-500/20 shadow-[0_0_24px_rgba(99,102,241,0.15)]">
       <img src={src} alt="QR Code" width={size} height={size} className="block" />
@@ -52,7 +52,7 @@ export default function PayPage() {
   const [sent, setSent] = useState(false);
 
   const matchedAgent = agents.find(
-    (a) => a.walletAddress?.toLowerCase() === targetAddress?.toLowerCase()
+    (a) => a.walletAddress && targetAddress && a.walletAddress.toLowerCase() === targetAddress.toLowerCase()
   );
 
   const { data: targetBalance, isLoading: balanceLoading } = useBalance({
@@ -74,21 +74,21 @@ export default function PayPage() {
     try {
       addTransaction({
         hash: txHash,
-        fromAddress: address!,
+        fromAddress: address as string,
         toAddress: targetAddress,
         amount: parseUnits(amount || "0", 18).toString(),
-        agentId: matchedAgent?.id,
-        agentName: matchedAgent?.name,
+        agentId: matchedAgent ? matchedAgent.id : undefined,
+        agentName: matchedAgent ? matchedAgent.name : undefined,
         note: note || undefined,
         timestamp: Date.now(),
         status: "pending",
       });
-    } catch {}
+    } catch (e) {}
     setSent(true);
     reset();
     toast({
       title: "Payment sent!",
-      description: `${formatUSDC(parseFloat(amount || "0"))} sent`,
+      description: formatUSDC(parseFloat(amount || "0")) + " sent",
     });
   }, [txHash]);
 
@@ -131,7 +131,7 @@ export default function PayPage() {
           <h2 className="text-white font-bold text-xl mb-2">Invalid address</h2>
           <p className="text-white/40 text-sm mb-6">This pay link contains an invalid wallet address.</p>
           <Link href="/">
-            <Button variant="ghost" className="text-white/40 hover:text-white">← Go home</Button>
+            <Button variant="ghost" className="text-white/40 hover:text-white">Go home</Button>
           </Link>
         </div>
       </div>
@@ -158,7 +158,7 @@ export default function PayPage() {
         </Link>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel border-emerald-500/20">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_4px_rgba(52,211,153,0.8)]" />
-          <span className="text-xs text-white/50 font-medium">Arc Testnet · Native USDC</span>
+          <span className="text-xs text-white/50 font-medium">Arc Testnet Native USDC</span>
         </div>
       </nav>
 
@@ -177,7 +177,7 @@ export default function PayPage() {
                 <div className="flex items-start gap-6 mb-6">
                   <div className="relative shrink-0">
                     <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 border border-indigo-500/30 flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.2)]">
-                      {matchedAgent?.name ? (
+                      {matchedAgent && matchedAgent.name ? (
                         <span className="text-3xl font-black text-indigo-300">
                           {matchedAgent.name.slice(0, 2).toUpperCase()}
                         </span>
@@ -194,9 +194,9 @@ export default function PayPage() {
                       {matchedAgent ? "Registered Agent" : "Payment Address"}
                     </div>
                     <h1 className="text-2xl font-black text-white mb-1">
-                      {matchedAgent?.name ?? "Anonymous Wallet"}
+                      {matchedAgent && matchedAgent.name ? matchedAgent.name : "Anonymous Wallet"}
                     </h1>
-                    {matchedAgent?.description && (
+                    {matchedAgent && matchedAgent.description && (
                       <p className="text-white/40 text-sm">{matchedAgent.description}</p>
                     )}
                   </div>
@@ -225,14 +225,14 @@ export default function PayPage() {
                     ) : targetUSDC !== null ? (
                       <div className="text-2xl font-black text-white">{formatUSDC(targetUSDC)}</div>
                     ) : (
-                      <div className="text-white/30 text-sm">—</div>
+                      <div className="text-white/30 text-sm">-</div>
                     )}
                     <div className="text-[10px] text-white/20 mt-0.5">USDC on Arc Testnet</div>
                   </div>
                   <div className="glass-panel rounded-xl p-4">
                     <div className="text-[10px] uppercase tracking-wider text-white/30 font-semibold mb-2">Network</div>
                     <div className="text-base font-bold text-emerald-400">Arc Testnet</div>
-                    <div className="text-[10px] text-white/20 mt-0.5">Chain ID · 5042002</div>
+                    <div className="text-[10px] text-white/20 mt-0.5">Chain ID 5042002</div>
                   </div>
                 </div>
               </div>
@@ -263,7 +263,7 @@ export default function PayPage() {
                     </button>
                   </div>
                   <p className="text-white/25 text-xs leading-relaxed">
-                    Anyone with this link can send USDC directly to this address on Arc Testnet — no account needed.
+                    Anyone with this link can send USDC directly to this address on Arc Testnet, no account needed.
                   </p>
                   <div className="flex gap-2 flex-wrap">
                     
@@ -308,7 +308,7 @@ export default function PayPage() {
                 <div>
                   <h2 className="text-xl font-black text-white mb-0.5">Send USDC</h2>
                   <p className="text-white/30 text-sm">
-                    to {matchedAgent?.name ?? truncateAddress(targetAddress)}
+                    to {matchedAgent && matchedAgent.name ? matchedAgent.name : truncateAddress(targetAddress)}
                   </p>
                 </div>
 
@@ -325,7 +325,7 @@ export default function PayPage() {
                       </Button>
                     </div>
                     <p className="text-white/20 text-xs text-center">
-                      No account needed — just MetaMask and some Arc Testnet USDC
+                      No account needed, just MetaMask and some Arc Testnet USDC
                     </p>
                   </div>
                 ) : !isOnArcTestnet ? (
@@ -350,21 +350,21 @@ export default function PayPage() {
                     </div>
                     <h3 className="text-white font-bold text-lg mb-1">Payment sent!</h3>
                     <p className="text-white/40 text-sm mb-5">
-                      {formatUSDC(parseFloat(amount || "0"))} is on its way — confirming on-chain now.
+                      {formatUSDC(parseFloat(amount || "0"))} is on its way, confirming on-chain now.
                     </p>
                     <Button
                       onClick={() => { setSent(false); setAmount(""); setNote(""); }}
                       variant="ghost"
                       className="text-indigo-400 hover:text-cyan-400 text-sm"
                     >
-                      Send another →
+                      Send another
                     </Button>
                   </motion.div>
                 ) : (
                   <>
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-white/30">Your balance</span>
-                      <span className="font-mono font-bold text-cyan-400">{formattedBalance ?? "…"} USDC</span>
+                      <span className="font-mono font-bold text-cyan-400">{formattedBalance ? formattedBalance : "..."} USDC</span>
                     </div>
 
                     <div className="space-y-2">
@@ -386,11 +386,11 @@ export default function PayPage() {
                           <button
                             key={p}
                             onClick={() => setAmount(String(p))}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                            className={
                               amount === String(p)
-                                ? "bg-indigo-500/20 border border-indigo-500/40 text-indigo-300"
-                                : "glass-panel text-white/40 hover:text-white/70 border border-white/[0.06]"
-                            }`}
+                                ? "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-indigo-500/20 border border-indigo-500/40 text-indigo-300"
+                                : "px-3 py-1.5 rounded-lg text-xs font-bold transition-all glass-panel text-white/40 hover:text-white/70 border border-white/[0.06]"
+                            }
                           >
                             {p}
                           </button>
@@ -416,7 +416,7 @@ export default function PayPage() {
                       {isPending ? (
                         <span className="flex items-center gap-2">
                           <span className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                          Confirm in MetaMask…
+                          Confirm in MetaMask...
                         </span>
                       ) : (
                         <span className="flex items-center gap-2">
