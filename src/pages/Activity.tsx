@@ -44,10 +44,16 @@ export default function ActivityFeed() {
   const [backendTxs, setBackendTxs] = useState<BackendTx[]>([]);
   const [loadingBackend, setLoadingBackend] = useState(false);
 
+  const ownerKey = address ? address.toLowerCase() : null;
+
   const fetchBackendTxs = async () => {
+    if (!ownerKey) {
+      setBackendTxs([]);
+      return;
+    }
     try {
       setLoadingBackend(true);
-      const res = await fetch(`${BACKEND_URL}/api/transactions`);
+      const res = await fetch(`${BACKEND_URL}/api/transactions?owner=${ownerKey}`);
       if (res.ok) {
         const data = await res.json();
         setBackendTxs(data);
@@ -58,7 +64,7 @@ export default function ActivityFeed() {
 
   useEffect(() => {
     fetchBackendTxs();
-  }, []);
+  }, [ownerKey]);
 
   const container = {
     hidden: { opacity: 0 },
@@ -191,7 +197,6 @@ export default function ActivityFeed() {
                 <div className="absolute left-[15px] sm:left-[23px] top-0 bottom-0 w-px bg-indigo-500/20" />
                 <motion.div variants={container} initial="hidden" animate="show" className="space-y-5">
 
-                  {/* Backend transactions (scheduled auto-payments) */}
                   {filteredBackend.map((tx) => (
                     <motion.div key={`backend-${tx.id}`} variants={item} className="relative">
                       <div className={cn(
@@ -245,7 +250,6 @@ export default function ActivityFeed() {
                     </motion.div>
                   ))}
 
-                  {/* Local wallet transactions */}
                   {filtered.map((tx) => {
                     let usdcAmount = 0;
                     try { usdcAmount = parseFloat(formatUnits(BigInt(tx.amount), 18)); } catch {}
