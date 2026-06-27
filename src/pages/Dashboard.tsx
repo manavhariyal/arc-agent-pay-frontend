@@ -30,13 +30,18 @@ export default function Dashboard() {
   const [backendTxs, setBackendTxs] = useState<any[]>([]);
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://arc-agent-pay-backend.onrender.com';
+  const ownerKey = address ? address.toLowerCase() : null;
 
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/transactions?limit=4`)
+    if (!ownerKey) {
+      setBackendTxs([]);
+      return;
+    }
+    fetch(`${BACKEND_URL}/api/transactions?owner=${ownerKey}&limit=4`)
       .then(r => r.json())
       .then(data => setBackendTxs(data))
       .catch(() => {});
-  }, []);
+  }, [ownerKey]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -66,7 +71,6 @@ export default function Dashboard() {
   return (
     <AppLayout>
       <div className="space-y-8">
-        {/* Header */}
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-3xl font-black tracking-tight text-white">
@@ -116,7 +120,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Low user balance warning */}
         {isConnected && isOnArcTestnet && isBalanceLow && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
@@ -140,7 +143,6 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* Empty balance warning */}
         {isConnected && isOnArcTestnet && isBalanceEmpty && agents.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
@@ -164,7 +166,6 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* Low balance alerts */}
         {isConnected && isOnArcTestnet && alerts.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
@@ -195,7 +196,6 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* Wrong network */}
         {isConnected && !isOnArcTestnet && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
@@ -208,7 +208,6 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* Not connected CTA */}
         {!isConnected && (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
@@ -226,7 +225,6 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* Stat Cards */}
         <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-4 gap-5">
           <motion.div variants={item} whileHover={{ y: -2 }} transition={{ duration: 0.2 }}>
             <div className="glass-panel-elevated p-6 rounded-2xl h-full">
@@ -251,7 +249,6 @@ export default function Dashboard() {
             </div>
           </motion.div>
 
-          {/* Auto-payment balance card */}
           <motion.div variants={item} whileHover={{ y: -2 }} transition={{ duration: 0.2 }}>
             <div className="glass-panel-elevated p-6 rounded-2xl h-full border border-cyan-500/10">
               <div className="flex items-center justify-between mb-5">
@@ -314,7 +311,6 @@ export default function Dashboard() {
           </motion.div>
         </motion.div>
 
-        {/* Bottom grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-7">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
             <div className="flex items-center justify-between mb-4">
