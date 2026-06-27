@@ -22,18 +22,22 @@ export default function Analytics() {
   const { agents } = useAgents();
   const [backendTxs, setBackendTxs] = useState<any[]>([]);
 
+  const ownerKey = address ? address.toLowerCase() : null;
+
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/transactions`)
+    if (!ownerKey) {
+      setBackendTxs([]);
+      return;
+    }
+    fetch(`${BACKEND_URL}/api/transactions?owner=${ownerKey}`)
       .then(r => r.json())
       .then(data => setBackendTxs(data))
       .catch(() => {});
-  }, []);
+  }, [ownerKey]);
 
-  // Combine local + backend transactions
   const confirmedTxs = transactions.filter((tx) => tx.status === "confirmed");
   const backendConfirmed = backendTxs.filter(tx => tx.status === "success");
 
-  // Total volume from both sources
   const localVolume = confirmedTxs.reduce((acc, tx) => {
     try { return acc + parseFloat(formatUnits(BigInt(tx.amount), 18)); } catch { return acc; }
   }, 0);
@@ -45,7 +49,6 @@ export default function Analytics() {
   const avgTx = totalConfirmed > 0 ? totalVolume / totalConfirmed : 0;
   const failedCount = transactions.filter(t => t.status === "failed").length + backendTxs.filter(t => t.status === "failed").length;
 
-  // Chart data — combine both sources by date
   const txsByDate: Record<string, { date: string; amount: number; count: number }> = {};
 
   confirmedTxs.forEach(tx => {
