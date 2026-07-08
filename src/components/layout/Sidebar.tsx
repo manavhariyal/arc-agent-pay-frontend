@@ -10,7 +10,7 @@ import { useBlockNumber } from "wagmi";
 import { arcTestnet } from "@/config/arc-network";
 import { useWallet } from "@/hooks/useWallet";
 
-export function Sidebar() {
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const [location] = useLocation();
   const [sendOpen, setSendOpen] = useState(false);
   const { isConnected, isOnArcTestnet } = useWallet();
@@ -32,14 +32,7 @@ export function Sidebar() {
 
   return (
     <>
-      <div
-        className="w-64 h-screen flex flex-col fixed left-0 top-0 z-40"
-        style={{
-          background: "rgba(9,11,18,0.97)",
-          borderRight: "1px solid rgba(255,255,255,0.05)",
-          backdropFilter: "blur(24px)",
-        }}
-      >
+      <div className="w-full h-full flex flex-col">
         {/* Brand */}
         <div className="px-4 py-4 flex items-center gap-2.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
           <img
@@ -74,7 +67,7 @@ export function Sidebar() {
             const isActive = location === link.href || location.startsWith(link.href + "/");
             const Icon = link.icon;
             return (
-              <Link key={link.href} href={link.href} className="block">
+              <Link key={link.href} href={link.href} className="block" onClick={onNavigate}>
                 <motion.div
                   whileHover={{ x: 1 }}
                   transition={{ duration: 0.12 }}
@@ -135,3 +128,20 @@ export function Sidebar() {
     </>
   );
 }
+
+export function Sidebar() {
+  return (
+    <div
+      className="hidden md:flex w-64 h-screen flex-col fixed left-0 top-0 z-40"
+      style={{
+        background: "rgba(9,11,18,0.97)",
+        borderRight: "1px solid rgba(255,255,255,0.05)",
+        backdropFilter: "blur(24px)",
+      }}
+    >
+      <SidebarContent />
+    </div>
+  );
+}
+
+export { SidebarContent };
