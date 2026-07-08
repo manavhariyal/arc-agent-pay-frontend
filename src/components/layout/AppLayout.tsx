@@ -1,10 +1,13 @@
-import { ReactNode } from "react";
-import { Sidebar } from "./Sidebar";
+import { ReactNode, useState } from "react";
+import { Sidebar, SidebarContent } from "./Sidebar";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLocation } from "wouter";
+import { Menu } from "lucide-react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex overflow-hidden noise-overlay">
@@ -20,8 +23,43 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
       <Sidebar />
 
-      <main className="flex-1 ml-64 relative z-10 h-screen overflow-y-auto overflow-x-hidden">
-        <div className="p-8 max-w-7xl mx-auto">
+      {/* Mobile top bar */}
+      <div
+        className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center gap-3 px-4 h-14"
+        style={{
+          background: "rgba(9,11,18,0.97)",
+          borderBottom: "1px solid rgba(255,255,255,0.05)",
+          backdropFilter: "blur(24px)",
+        }}
+      >
+        <button
+          onClick={() => setMobileNavOpen(true)}
+          className="p-1.5 -ml-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/[0.06] transition-colors"
+          aria-label="Open menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <img
+          src="/arc-logo.png"
+          alt="Arc Agent Pay"
+          className="h-6 w-auto object-contain"
+          style={{ filter: 'brightness(4) drop-shadow(0 0 8px rgba(99,102,241,0.5))' }}
+        />
+      </div>
+
+      {/* Mobile nav drawer */}
+      <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+        <SheetContent
+          side="left"
+          className="p-0 w-72 border-r-0"
+          style={{ background: "rgba(9,11,18,0.98)", backdropFilter: "blur(24px)" }}
+        >
+          <SidebarContent onNavigate={() => setMobileNavOpen(false)} />
+        </SheetContent>
+      </Sheet>
+
+      <main className="flex-1 md:ml-64 relative z-10 h-screen overflow-y-auto overflow-x-hidden pt-14 md:pt-0">
+        <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
           <AnimatePresence mode="wait">
             <motion.div
               key={location}
