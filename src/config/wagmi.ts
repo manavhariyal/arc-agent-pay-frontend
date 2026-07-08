@@ -1,5 +1,5 @@
 import { createConfig, http } from 'wagmi'
-import { injected } from 'wagmi/connectors'
+import { injected, walletConnect } from 'wagmi/connectors'
 import { arcTestnet } from './arc-network'
 
 export const wagmiConfig = createConfig({
@@ -24,6 +24,16 @@ export const wagmiConfig = createConfig({
       shimDisconnect: true,
     }),
     injected(),
+    walletConnect({
+      projectId: '2735266af8c2a85f72753baaccca0bc8',
+      metadata: {
+        name: 'Arc Agent Pay',
+        description: 'AI agent payment network on Arc Testnet',
+        url: 'https://arc-agent-pay-virid.vercel.app',
+        icons: ['https://arc-agent-pay-virid.vercel.app/arc-logo.png'],
+      },
+      showQrModal: true,
+    }),
   ],
   transports: {
     [arcTestnet.id]: http('https://rpc.testnet.arc.network'),
