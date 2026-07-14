@@ -29,8 +29,8 @@ export const wagmiConfig = createConfig({
       metadata: {
         name: 'Arc Agent Pay',
         description: 'AI agent payment network on Arc Testnet',
-        url: 'https://arc-agent-pay-virid.vercel.app',
-        icons: ['https://arc-agent-pay-virid.vercel.app/arc-logo.png'],
+        url: 'https://arcagentpay.xyz',
+        icons: ['https://arcagentpay.xyz/arc-logo.png'],
       },
       showQrModal: true,
     }),
