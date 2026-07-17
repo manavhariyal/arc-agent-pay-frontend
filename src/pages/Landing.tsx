@@ -37,7 +37,7 @@ export default function Landing() {
       {/* Nav */}
       <nav className="relative z-10 flex items-center justify-between px-8 py-5 max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-3">
-          <img src="/arc-logo.png" alt="Arc Agent Pay" className="h-10 w-auto" style={{ filter: 'brightness(4) drop-shadow(0 0 6px rgba(99,102,241,0.5))' }} />
+          <img src="/arc-logo.png" alt="Arc Agent Pay" className="h-10 w-auto" style={{ filter: 'drop-shadow(0 0 6px rgba(99,102,241,0.35))' }} />
         </div>
         <div className="flex items-center gap-3">
           <a href="https://testnet.arcscan.app" target="_blank" rel="noreferrer"
@@ -83,7 +83,7 @@ export default function Landing() {
             src="/arc-logo.png"
             alt="Arc Agent Pay"
             className="w-40 h-40 md:w-48 md:h-48 object-contain mx-auto"
-            style={{ filter: 'brightness(4) drop-shadow(0 0 30px rgba(99,102,241,0.6)) drop-shadow(0 0 60px rgba(6,182,212,0.3))' }}
+            style={{ filter: 'drop-shadow(0 0 30px rgba(99,102,241,0.5)) drop-shadow(0 0 60px rgba(6,182,212,0.25))' }}
           />
         </motion.div>
 
