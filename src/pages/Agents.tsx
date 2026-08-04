@@ -75,17 +75,34 @@ export default function Agents() {
     toast({ title: "Copied!", description: "Address copied to clipboard." });
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!form.name.trim()) return;
-    addAgent({
-      name: form.name.trim(),
-      description: form.description.trim(),
-      walletAddress: connectedAddress || CIRCLE_WALLET_ADDRESS,
-      status: form.status,
-      alertThreshold: 10,
-    });
-    setForm(emptyForm);
-    setAddOpen(false);
+    try {
+      await addAgent({
+        name: form.name.trim(),
+        description: form.description.trim(),
+        walletAddress: connectedAddress || CIRCLE_WALLET_ADDRESS,
+        status: form.status,
+        alertThreshold: 10,
+      }, (agentName) => {
+        toast({
+          title: "Couldn't fully save agent",
+          description: `${agentName} is only saved on this device right now — we couldn't reach the server. Try refreshing or registering it again shortly.`,
+          variant: "destructive",
+        });
+      });
+      toast({ title: "Agent registered", description: `${form.name.trim()} is ready to go.` });
+      setForm(emptyForm);
+      setAddOpen(false);
+    } catch (err: any) {
+      toast({
+        title: "Couldn't register agent",
+        description: err?.message === "Connect your wallet first"
+          ? "Please connect your wallet first."
+          : "Something went wrong saving your agent. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEdit = () => {
