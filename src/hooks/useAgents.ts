@@ -82,7 +82,10 @@ export function useAgents() {
     fetchAgents()
   }, [fetchAgents])
 
-  const addAgent = async (input: Omit<Agent, 'id' | 'createdAt'>): Promise<Agent> => {
+  const addAgent = async (
+    input: Omit<Agent, 'id' | 'createdAt'>,
+    onBackendFailed?: (agentName: string) => void
+  ): Promise<Agent> => {
     if (!ownerKey || !STORAGE_KEY) {
       throw new Error('Connect your wallet first')
     }
@@ -133,6 +136,7 @@ export function useAgents() {
         await new Promise(r => setTimeout(r, 5000))
       }
       setSaving(false)
+      onBackendFailed?.(input.name)
     }
 
     tryBackend()
