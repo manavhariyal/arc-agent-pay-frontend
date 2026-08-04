@@ -1,5 +1,5 @@
 import { useParams } from "wouter";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAgents } from "@/hooks/useAgents";
 import { useTransactions } from "@/hooks/useTransactions";
@@ -25,6 +25,7 @@ import { formatUnits } from "viem";
 import { arcTestnet, ARC_NETWORK } from "@/config/arc-network";
 import { SendPaymentDialog } from "@/components/wallet/SendPaymentDialog";
 import type { AgentStatus } from "@/types";
+import type { StoredTransaction } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function AgentDetail() {
@@ -33,6 +34,38 @@ export default function AgentDetail() {
   const { address } = useWallet();
   const { agents, setAgentStatus } = useAgents();
   const { transactions } = useTransactions(address);
+  const [backendAgentTxs, setBackendAgentTxs] = useState<StoredTransaction[]>([]);
+
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://arc-agent-pay-backend.onrender.com';
+
+  useEffect(() => {
+    if (!address || !id) {
+      setBackendAgentTxs([]);
+      return;
+    }
+    const ownerKey = address.toLowerCase();
+    (async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/transactions?owner=${ownerKey}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const normalized: StoredTransaction[] = data
+          .filter((tx: any) => tx.agent_id === id)
+          .map((tx: any) => ({
+            id: `backend-${tx.id}`,
+            hash: tx.tx_hash || "",
+            fromAddress: tx.from_address || "",
+            toAddress: tx.to_address,
+            amount: Math.round(parseFloat(tx.amount) * 1e18).toString(),
+            agentId: tx.agent_id,
+            timestamp: new Date(tx.created_at).getTime(),
+            status: tx.status === "success" ? "confirmed" : tx.status === "pending" ? "pending" : "failed",
+          }));
+        setBackendAgentTxs(normalized);
+      } catch {}
+    })();
+  }, [address, id]);
+
   const { rules, deleteRule, toggleRule } = useSpendingRules();
   const [sendOpen, setSendOpen] = useState(false);
   const [copiedPayLink, setCopiedPayLink] = useState(false);
@@ -69,7 +102,12 @@ export default function AgentDetail() {
     );
   }
 
-  const agentTxs = transactions.filter((tx) => tx.agentId === agent.id);
+  const onChainAgentTxs = transactions.filter((tx) => tx.agentId === agent.id);
+  const seenHashes = new Set(onChainAgentTxs.filter(tx => tx.hash).map(tx => tx.hash));
+  const agentTxs = [
+    ...onChainAgentTxs,
+    ...backendAgentTxs.filter(tx => !tx.hash || !seenHashes.has(tx.hash)),
+  ].sort((a, b) => b.timestamp - a.timestamp);
   const agentRules = rules.filter((r) => r.agentId === agent.id);
 
   const stats = useMemo(() => {
@@ -230,7 +268,7 @@ export default function AgentDetail() {
                 <span className="font-mono text-cyan-400 text-sm">{agent.walletAddress}</span>
                 <Copy className="w-3.5 h-3.5 text-white/30" />
                 
-                  <a
+                  
                     href={explorerAddressUrl}
                   target="_blank"
                   rel="noreferrer"
@@ -450,7 +488,7 @@ export default function AgentDetail() {
                             <div className="font-semibold text-white text-sm flex items-center gap-2">
                               To: {truncateAddress(tx.toAddress)}
                               
-                                <a
+                                
                                   href={ARC_NETWORK.explorerUrl + "/tx/" + tx.hash}
                                 target="_blank"
                                 rel="noreferrer"
