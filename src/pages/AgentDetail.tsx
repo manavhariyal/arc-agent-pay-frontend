@@ -267,14 +267,7 @@ export default function AgentDetail() {
               >
                 <span className="font-mono text-cyan-400 text-sm">{agent.walletAddress}</span>
                 <Copy className="w-3.5 h-3.5 text-white/30" />
-                
-                  
-                    href={explorerAddressUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-white/30 hover:text-white transition-colors"
-                >
+                <a href={explorerAddressUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-white/30 hover:text-white transition-colors">
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               </div>
@@ -487,13 +480,8 @@ export default function AgentDetail() {
                           <div>
                             <div className="font-semibold text-white text-sm flex items-center gap-2">
                               To: {truncateAddress(tx.toAddress)}
-                              
-                                
-                                  href={ARC_NETWORK.explorerUrl + "/tx/" + tx.hash}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-white/30 hover:text-indigo-400 transition-colors"
-                              >
+                              To: {truncateAddress(tx.toAddress)}
+                              <a href={ARC_NETWORK.explorerUrl + "/tx/" + tx.hash} target="_blank" rel="noreferrer" className="text-white/30 hover:text-indigo-400 transition-colors">
                                 <ExternalLink className="w-3.5 h-3.5" />
                               </a>
                             </div>
