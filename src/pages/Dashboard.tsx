@@ -91,7 +91,7 @@ export default function Dashboard() {
                   <span className="font-mono text-sm text-white">{truncateAddress(address!)}</span>
                   <div className="w-px h-4 bg-white/10" />
                   <span className="font-bold text-cyan-400 font-mono text-sm">
-                    {isBalanceLoading ? "…" : `${formattedBalance} USDC`}
+                    {isBalanceLoading || formattedBalance == null ? "…" : `${formattedBalance} USDC`}
                   </span>
                   <Copy className="w-3.5 h-3.5 text-white/30" />
                 </button>
@@ -239,7 +239,7 @@ export default function Dashboard() {
               <div className="text-xs text-white/40 uppercase tracking-wider font-medium mb-2">Wallet Balance</div>
               <div className="text-3xl font-black text-white leading-none">
                 {isConnected && isOnArcTestnet ? (
-                  isBalanceLoading ? <div className="h-9 w-40 bg-white/5 rounded-lg animate-pulse" /> :
+                  isBalanceLoading || formattedBalance == null ? <div className="h-9 w-40 bg-white/5 rounded-lg animate-pulse" /> :
                   <span>{formattedBalance} <span className="text-sm font-medium text-indigo-300">USDC</span></span>
                 ) : <span className="text-white/20 text-2xl">—</span>}
               </div>
