@@ -81,10 +81,10 @@ export default function AgentDetail() {
     setTimeout(() => setCopiedPayLink(false), 2000);
   };
 
-  const { data: balanceData, isLoading: isBalanceLoading } = useBalance({
+  const { data: balanceData, isLoading: isBalanceLoading, isError: isBalanceError, refetch: refetchBalance } = useBalance({
     address: agent ? (agent.walletAddress as `0x${string}`) : undefined,
     chainId: arcTestnet.id,
-    query: { enabled: !!agent && !!agent.walletAddress },
+    query: { enabled: !!agent && !!agent.walletAddress, retry: 3 },
   });
 
   const onChainAgentTxs = agent ? transactions.filter((tx) => tx.agentId === agent.id) : [];
@@ -253,12 +253,14 @@ export default function AgentDetail() {
               >
                 {isBalanceLoading ? (
                   <div className="h-12 w-48 bg-white/5 rounded-xl animate-pulse" />
-                ) : formattedBalance !== null ? (
+                ) : isBalanceError || formattedBalance === null ? (
+                  <button onClick={() => refetchBalance()} className="text-lg text-rose-400 hover:text-rose-300 flex items-center gap-2">
+                    Couldn't load balance · <span className="underline decoration-dotted">tap to retry</span>
+                  </button>
+                ) : (
                   <span>
                     {formattedBalance} <span className="text-xl font-medium text-indigo-300">USDC</span>
                   </span>
-                ) : (
-                  <span className="text-white/20">—</span>
                 )}
               </motion.div>
               <div
