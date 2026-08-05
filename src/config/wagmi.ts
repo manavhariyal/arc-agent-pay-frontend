@@ -1,4 +1,4 @@
-import { createConfig, http } from 'wagmi'
+import { createConfig, http, fallback } from 'wagmi'
 import { injected, walletConnect } from 'wagmi/connectors'
 import { arcTestnet } from './arc-network'
 
@@ -36,7 +36,11 @@ export const wagmiConfig = createConfig({
     }),
   ],
   transports: {
-    [arcTestnet.id]: http('https://rpc.testnet.arc.network'),
+    [arcTestnet.id]: fallback([
+      http('https://rpc.testnet.arc.io'),
+      http('https://rpc.blockdaemon.testnet.arc.io'),
+      http('https://rpc.drpc.testnet.arc.io'),
+    ]),
   },
   ssr: false,
 })
