@@ -10,7 +10,7 @@ export const arcTestnet = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.testnet.arc.network'],
+      http: ['https://rpc.testnet.arc.io'],
     },
   },
   blockExplorers: {
@@ -25,9 +25,9 @@ export const arcTestnet = defineChain({
 export const ARC_NETWORK = {
   chainId: 5042002,
   name: 'Arc Testnet',
-  rpcUrl: 'https://rpc.testnet.arc.network',
+  rpcUrl: 'https://rpc.testnet.arc.io',
   explorerUrl: 'https://testnet.arcscan.app',
-  faucetUrl: 'https://faucet.testnet.arc.network',
+  faucetUrl: 'https://faucet.circle.com',
   nativeCurrency: {
     symbol: 'USDC',
     decimals: 18,
