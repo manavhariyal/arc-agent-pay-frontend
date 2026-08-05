@@ -10,10 +10,10 @@ export function useWallet() {
   const { disconnect } = useDisconnect()
   const { switchChain, isPending: isSwitching } = useSwitchChain()
 
-  const { data: balanceData, isLoading: isBalanceLoading } = useBalance({
+  const { data: balanceData, isLoading: isBalanceLoading, isError: isBalanceError, refetch: refetchBalance } = useBalance({
     address,
     chainId: arcTestnet.id,
-    query: { enabled: isConnected && !!address },
+    query: { enabled: isConnected && !!address, retry: 3 },
   })
 
   const isOnArcTestnet = chain?.id === arcTestnet.id
@@ -58,6 +58,8 @@ export function useWallet() {
     isConnecting,
     isSwitching,
     isBalanceLoading,
+    isBalanceError,
+    refetchBalance,
     isMetaMaskAvailable,
     balance: balanceData,
     formattedBalance,
