@@ -20,7 +20,7 @@ import { useAgentHealth } from "@/context/AgentHealthContext";
 
 export default function Dashboard() {
   const { toast } = useToast();
-  const { address, isConnected, isOnArcTestnet, formattedBalance, isBalanceLoading } = useWallet();
+  const { address, isConnected, isOnArcTestnet, formattedBalance, isBalanceLoading, isBalanceError, refetchBalance } = useWallet();
   const { agents } = useAgents();
   const { transactions } = useTransactions(address);
   const { alerts } = useAgentHealth();
@@ -91,7 +91,9 @@ export default function Dashboard() {
                   <span className="font-mono text-sm text-white">{truncateAddress(address!)}</span>
                   <div className="w-px h-4 bg-white/10" />
                   <span className="font-bold text-cyan-400 font-mono text-sm">
-                    {isBalanceLoading || formattedBalance == null ? "…" : `${formattedBalance} USDC`}
+                    {isBalanceLoading ? "…" : isBalanceError || formattedBalance == null ? (
+                      <button onClick={() => refetchBalance()} className="text-rose-400 hover:text-rose-300 underline decoration-dotted">retry</button>
+                    ) : `${formattedBalance} USDC`}
                   </span>
                   <Copy className="w-3.5 h-3.5 text-white/30" />
                 </button>
@@ -239,7 +241,12 @@ export default function Dashboard() {
               <div className="text-xs text-white/40 uppercase tracking-wider font-medium mb-2">Wallet Balance</div>
               <div className="text-3xl font-black text-white leading-none">
                 {isConnected && isOnArcTestnet ? (
-                  isBalanceLoading || formattedBalance == null ? <div className="h-9 w-40 bg-white/5 rounded-lg animate-pulse" /> :
+                  isBalanceLoading ? <div className="h-9 w-40 bg-white/5 rounded-lg animate-pulse" /> :
+                  isBalanceError || formattedBalance == null ? (
+                    <button onClick={() => refetchBalance()} className="text-base text-rose-400 hover:text-rose-300 flex items-center gap-2">
+                      Couldn't load balance · <span className="underline decoration-dotted">tap to retry</span>
+                    </button>
+                  ) :
                   <span>{formattedBalance} <span className="text-sm font-medium text-indigo-300">USDC</span></span>
                 ) : <span className="text-white/20 text-2xl">—</span>}
               </div>
