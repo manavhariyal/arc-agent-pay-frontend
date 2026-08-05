@@ -87,28 +87,13 @@ export default function AgentDetail() {
     query: { enabled: !!agent && !!agent.walletAddress },
   });
 
-  if (!agent) {
-    return (
-      <AppLayout>
-        <div className="flex flex-col items-center justify-center h-[60vh] glass-panel-elevated rounded-3xl">
-          <Shield className="w-16 h-16 text-white/10 mb-6" />
-          <h2 className="text-3xl font-bold text-white mb-3">Agent Not Found</h2>
-          <p className="text-white/40 mb-8">This agent doesn't exist or has been removed.</p>
-          <Link href="/agents">
-            <Button className="bg-indigo-600 text-white rounded-full px-8 h-11">Back to Agents</Button>
-          </Link>
-        </div>
-      </AppLayout>
-    );
-  }
-
-  const onChainAgentTxs = transactions.filter((tx) => tx.agentId === agent.id);
+  const onChainAgentTxs = agent ? transactions.filter((tx) => tx.agentId === agent.id) : [];
   const seenHashes = new Set(onChainAgentTxs.filter(tx => tx.hash).map(tx => tx.hash));
-  const agentTxs = [
+  const agentTxs = agent ? [
     ...onChainAgentTxs,
     ...backendAgentTxs.filter(tx => !tx.hash || !seenHashes.has(tx.hash)),
-  ].sort((a, b) => b.timestamp - a.timestamp);
-  const agentRules = rules.filter((r) => r.agentId === agent.id);
+  ].sort((a, b) => b.timestamp - a.timestamp) : [];
+  const agentRules = agent ? rules.filter((r) => r.agentId === agent.id) : [];
 
   const stats = useMemo(() => {
     const confirmed = agentTxs.filter((tx) => tx.status === "confirmed");
@@ -148,6 +133,21 @@ export default function AgentDetail() {
       sparkline: days,
     };
   }, [agentTxs]);
+
+  if (!agent) {
+    return (
+      <AppLayout>
+        <div className="flex flex-col items-center justify-center h-[60vh] glass-panel-elevated rounded-3xl">
+          <Shield className="w-16 h-16 text-white/10 mb-6" />
+          <h2 className="text-3xl font-bold text-white mb-3">Agent Not Found</h2>
+          <p className="text-white/40 mb-8">This agent doesn't exist or has been removed.</p>
+          <Link href="/agents">
+            <Button className="bg-indigo-600 text-white rounded-full px-8 h-11">Back to Agents</Button>
+          </Link>
+        </div>
+      </AppLayout>
+    );
+  }
 
   const formattedBalance = balanceData
     ? parseFloat(formatUnits(balanceData.value, balanceData.decimals)).toFixed(4)
