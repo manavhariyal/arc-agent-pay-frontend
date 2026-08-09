@@ -19,6 +19,7 @@ import Activity from "@/pages/Activity";
 import Analytics from "@/pages/Analytics";
 import MultiSend from "@/pages/MultiSend";
 import PayPage from "@/pages/PayPage";
+import X402Demo from "@/pages/X402Demo";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +38,7 @@ function Router() {
       <Route path="/multi-send" component={MultiSend} />
       <Route path="/activity" component={Activity} />
       <Route path="/analytics" component={Analytics} />
+      <Route path="/x402-demo" component={X402Demo} />
       <Route path="/pay/:address" component={PayPage} />
       <Route component={NotFound} />
     </Switch>
