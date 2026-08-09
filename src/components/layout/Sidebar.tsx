@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, GitMerge, Activity, BarChart3, Send, ListChecks } from "lucide-react";
+import { LayoutDashboard, Users, GitMerge, Activity, BarChart3, Send, ListChecks, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { WalletButton } from "@/components/wallet/WalletButton";
 import { SendPaymentDialog } from "@/components/wallet/SendPaymentDialog";
@@ -28,6 +28,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     { href: "/multi-send", label: "Multi-Send", icon: ListChecks },
     { href: "/activity", label: "Activity", icon: Activity },
     { href: "/analytics", label: "Analytics", icon: BarChart3 },
+    { href: "/x402-demo", label: "x402 Demo", icon: Zap },
   ];
 
   return (
@@ -39,7 +40,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             src="/arc-logo.png"
             alt="Arc Agent Pay"
             className="h-8 w-auto object-contain"
-            style={{ filter: 'brightness(4) drop-shadow(0 0 8px rgba(99,102,241,0.5))' }}
+            style={{ filter: 'drop-shadow(0 0 8px rgba(99,102,241,0.35))' }}
           />
         </div>
 
