@@ -29,7 +29,7 @@ export default function Analytics() {
       setBackendTxs([]);
       return;
     }
-    fetch(`${BACKEND_URL}/api/transactions?owner=${ownerKey}`)
+    fetch(`${BACKEND_URL}/api/transactions?owner=${ownerKey}&limit=2000`)
       .then(r => r.json())
       .then(data => setBackendTxs(data))
       .catch(() => {});
