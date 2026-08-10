@@ -53,7 +53,7 @@ export default function ActivityFeed() {
     }
     try {
       setLoadingBackend(true);
-      const res = await fetch(`${BACKEND_URL}/api/transactions?owner=${ownerKey}`);
+      const res = await fetch(`${BACKEND_URL}/api/transactions?owner=${ownerKey}&limit=2000`);
       if (res.ok) {
         const data = await res.json();
         setBackendTxs(data);
