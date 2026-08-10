@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, ArrowRight, CheckCircle2, XCircle, Loader2, Coins, Lock, Unlock } from "lucide-react";
+import { Zap, ArrowRight, CheckCircle2, XCircle, Loader2, Coins, Lock, Unlock, Wallet, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { truncateAddress } from "@/lib/utils";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://arc-agent-pay-backend.onrender.com";
+const LOW_BALANCE_THRESHOLD = 0.01; // USDC
 
 type DemoResult = {
   success: boolean;
@@ -13,6 +14,7 @@ type DemoResult = {
   data: {
     metal: string;
     price_usd_per_oz: string;
+    price_source: "live" | "estimate";
     timestamp: string;
   };
   amountPaid: string;
@@ -20,28 +22,82 @@ type DemoResult = {
   transaction: string;
 };
 
+type BalanceInfo = {
+  buyerAddress: string;
+  gatewayAvailable: string;
+  walletBalance: string;
+};
+
 export default function X402Demo() {
   const [state, setState] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [result, setResult] = useState<DemoResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLowBalance, setIsLowBalance] = useState(false);
+  const [balance, setBalance] = useState<BalanceInfo | null>(null);
+  const [balanceLoading, setBalanceLoading] = useState(true);
+  const [toppingUp, setToppingUp] = useState(false);
+
+  const fetchBalance = useCallback(async () => {
+    setBalanceLoading(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/x402-demo/buyer-balance`);
+      const json = await res.json();
+      if (res.ok) setBalance(json);
+    } catch {
+      // silent — balance display is a nice-to-have, not critical
+    } finally {
+      setBalanceLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBalance();
+  }, [fetchBalance]);
 
   const runDemo = async () => {
     setState("loading");
     setError(null);
     setResult(null);
+    setIsLowBalance(false);
     try {
       const res = await fetch(`${BACKEND_URL}/api/x402-demo/fetch-gold-price`, { method: "POST" });
       const json = await res.json();
       if (!res.ok || !json.success) {
+        setIsLowBalance(!!json.lowBalance);
         throw new Error(json.error || "Something went wrong");
       }
       setResult(json);
       setState("success");
+      fetchBalance();
     } catch (err: any) {
       setError(err.message || "Request failed");
       setState("error");
     }
   };
+
+  const topUp = async () => {
+    setToppingUp(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/x402-demo/setup-buyer`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: "1" }),
+      });
+      if (res.ok) {
+        await fetchBalance();
+        setState("idle");
+        setError(null);
+        setIsLowBalance(false);
+      }
+    } catch {
+      // leave state as-is; the balance display will still reflect reality on next refresh
+    } finally {
+      setToppingUp(false);
+    }
+  };
+
+  const gatewayAvailableNum = balance ? parseFloat(balance.gatewayAvailable) : null;
+  const showLowBalanceWarning = gatewayAvailableNum !== null && gatewayAvailableNum < LOW_BALANCE_THRESHOLD;
 
   return (
     <AppLayout>
@@ -56,8 +112,42 @@ export default function X402Demo() {
           <p className="text-white/40 text-sm leading-relaxed max-w-xl">
             This is a real, live paywalled API endpoint. Click below and a dedicated agent wallet will
             automatically discover the paywall, pay $0.001 USDC through Circle's Gateway, and fetch the
-            real data — no manual signing, no approval clicks, all in one request.
+            real, current gold price — no manual signing, no approval clicks, all in one request.
           </p>
+        </div>
+
+        {/* Buyer wallet balance */}
+        <div className="glass-panel rounded-xl px-5 py-3.5 flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2.5 text-sm">
+            <Wallet className="w-4 h-4 text-white/30" />
+            <span className="text-white/40">Demo buyer wallet balance:</span>
+            {balanceLoading ? (
+              <span className="text-white/20">…</span>
+            ) : balance ? (
+              <span className={showLowBalanceWarning ? "text-amber-400 font-mono font-bold" : "text-cyan-400 font-mono font-bold"}>
+                {balance.gatewayAvailable} USDC
+              </span>
+            ) : (
+              <span className="text-white/20">—</span>
+            )}
+            {balance && (
+              <span className="text-white/20 text-xs font-mono hidden sm:inline">
+                ({truncateAddress(balance.buyerAddress)})
+              </span>
+            )}
+          </div>
+          {(showLowBalanceWarning || isLowBalance) && (
+            <Button
+              onClick={topUp}
+              disabled={toppingUp}
+              size="sm"
+              variant="outline"
+              className="h-8 rounded-full border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-xs"
+            >
+              {toppingUp ? <Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> : <PlusCircle className="w-3 h-3 mr-1.5" />}
+              Top up $1
+            </Button>
+          )}
         </div>
 
         {/* Flow diagram */}
@@ -116,8 +206,20 @@ export default function X402Demo() {
                 className="mt-8 text-left rounded-xl p-5"
                 style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.2)" }}
               >
-                <div className="flex items-center gap-2 mb-4 text-emerald-400 font-semibold text-sm">
-                  <CheckCircle2 className="w-4 h-4" /> Payment settled & resource unlocked
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
+                    <CheckCircle2 className="w-4 h-4" /> Payment settled & resource unlocked
+                  </div>
+                  {result.data.price_source && (
+                    <span className={
+                      "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full " +
+                      (result.data.price_source === "live"
+                        ? "text-emerald-400 bg-emerald-400/10 border border-emerald-400/20"
+                        : "text-amber-400 bg-amber-400/10 border border-amber-400/20")
+                    }>
+                      {result.data.price_source === "live" ? "Live market data" : "Estimated"}
+                    </span>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
@@ -145,14 +247,29 @@ export default function X402Demo() {
                 key="error"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-8 text-left rounded-xl p-5 flex items-start gap-3"
+                className="mt-8 text-left rounded-xl p-5"
                 style={{ background: "rgba(244,63,94,0.06)", border: "1px solid rgba(244,63,94,0.2)" }}
               >
-                <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                <div>
-                  <div className="text-rose-400 font-semibold text-sm mb-1">Payment failed</div>
-                  <div className="text-white/40 text-xs">{error}</div>
+                <div className="flex items-start gap-3">
+                  <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <div className="text-rose-400 font-semibold text-sm mb-1">
+                      {isLowBalance ? "Buyer wallet needs a top-up" : "Payment failed"}
+                    </div>
+                    <div className="text-white/40 text-xs">{error}</div>
+                  </div>
                 </div>
+                {isLowBalance && (
+                  <Button
+                    onClick={topUp}
+                    disabled={toppingUp}
+                    size="sm"
+                    className="mt-3 h-8 rounded-full bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 text-xs border border-amber-500/30"
+                  >
+                    {toppingUp ? <Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> : <PlusCircle className="w-3 h-3 mr-1.5" />}
+                    Top up $1 & retry
+                  </Button>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
