@@ -28,6 +28,7 @@ export default function Dashboard() {
   const [sendOpen, setSendOpen] = useState(false);
   const [depositOpen, setDepositOpen] = useState(false);
   const [backendTxs, setBackendTxs] = useState<any[]>([]);
+  const [allBackendTxs, setAllBackendTxs] = useState<any[]>([]);
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://arc-agent-pay-backend.onrender.com';
   const ownerKey = address ? address.toLowerCase() : null;
@@ -35,11 +36,19 @@ export default function Dashboard() {
   useEffect(() => {
     if (!ownerKey) {
       setBackendTxs([]);
+      setAllBackendTxs([]);
       return;
     }
+    // Small fetch just for the "Recent Transactions" preview list.
     fetch(`${BACKEND_URL}/api/transactions?owner=${ownerKey}&limit=4`)
       .then(r => r.json())
       .then(data => setBackendTxs(data))
+      .catch(() => {});
+    // Separate, much larger fetch so totals (Volume Sent, confirmed count)
+    // reflect the true full history, not just the 4 most recent.
+    fetch(`${BACKEND_URL}/api/transactions?owner=${ownerKey}&limit=2000`)
+      .then(r => r.json())
+      .then(data => setAllBackendTxs(data))
       .catch(() => {});
   }, [ownerKey]);
 
@@ -59,7 +68,7 @@ export default function Dashboard() {
 
   const activeAgents = agents.filter((a) => a.status === "active");
   const confirmedTxs = transactions.filter((tx) => tx.status === "confirmed");
-  const backendConfirmed = backendTxs.filter(tx => tx.status === "success");
+  const backendConfirmed = allBackendTxs.filter(tx => tx.status === "success");
   const totalVolume = confirmedTxs.reduce((acc, tx) => {
     try { return acc + parseFloat(formatUnits(BigInt(tx.amount), 18)); } catch { return acc; }
   }, 0) + backendConfirmed.reduce((acc, tx) => acc + parseFloat(tx.amount || 0), 0);
