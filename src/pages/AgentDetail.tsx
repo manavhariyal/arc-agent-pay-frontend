@@ -46,7 +46,7 @@ export default function AgentDetail() {
     const ownerKey = address.toLowerCase();
     (async () => {
       try {
-        const res = await fetch(`${BACKEND_URL}/api/transactions?owner=${ownerKey}`);
+        const res = await fetch(`${BACKEND_URL}/api/transactions?owner=${ownerKey}&limit=2000`);
         if (!res.ok) return;
         const data = await res.json();
         const normalized: StoredTransaction[] = data
