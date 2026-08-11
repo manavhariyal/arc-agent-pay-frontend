@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, ArrowRight, CheckCircle2, XCircle, Loader2, Coins, Lock, Unlock, Wallet, PlusCircle } from "lucide-react";
+import { Zap, ArrowRight, CheckCircle2, XCircle, Loader2, Coins, Lock, Unlock, Wallet, PlusCircle, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { truncateAddress } from "@/lib/utils";
 
@@ -19,7 +19,14 @@ type DemoResult = {
   };
   amountPaid: string;
   formattedAmount: string;
-  transaction: string;
+  transferId: string;
+};
+
+type SettlementInfo = {
+  status: string;
+  txHash: string | null;
+  settled: boolean;
+  explorerUrl: string | null;
 };
 
 type BalanceInfo = {
@@ -36,6 +43,27 @@ export default function X402Demo() {
   const [balance, setBalance] = useState<BalanceInfo | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(true);
   const [toppingUp, setToppingUp] = useState(false);
+  const [settlement, setSettlement] = useState<SettlementInfo | null>(null);
+  const [settlementChecking, setSettlementChecking] = useState(false);
+
+  const pollSettlement = useCallback(async (transferId: string) => {
+    setSettlementChecking(true);
+    setSettlement(null);
+    // Gateway settles batches on its own cadence, not instantly — poll a
+    // handful of times rather than blocking the initial response on it.
+    for (let attempt = 0; attempt < 15; attempt++) {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/x402-demo/settlement/${transferId}`);
+        const json: SettlementInfo = await res.json();
+        setSettlement(json);
+        if (json.settled) break;
+      } catch {
+        // keep trying — a single failed check isn't worth surfacing as an error
+      }
+      await new Promise((r) => setTimeout(r, 4000));
+    }
+    setSettlementChecking(false);
+  }, []);
 
   const fetchBalance = useCallback(async () => {
     setBalanceLoading(true);
@@ -59,6 +87,7 @@ export default function X402Demo() {
     setError(null);
     setResult(null);
     setIsLowBalance(false);
+    setSettlement(null);
     try {
       const res = await fetch(`${BACKEND_URL}/api/x402-demo/fetch-gold-price`, { method: "POST" });
       const json = await res.json();
@@ -69,6 +98,7 @@ export default function X402Demo() {
       setResult(json);
       setState("success");
       fetchBalance();
+      pollSettlement(json.transferId);
     } catch (err: any) {
       setError(err.message || "Request failed");
       setState("error");
@@ -237,6 +267,29 @@ export default function X402Demo() {
                   <div>
                     <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Fetched At</div>
                     <div className="text-white/60 text-xs">{new Date(result.data.timestamp).toLocaleTimeString()}</div>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-white/[0.06]">
+                  <div className="text-white/30 text-xs uppercase tracking-wider mb-1.5">Onchain Proof</div>
+                  {settlement?.settled && settlement.explorerUrl ? (
+                    <a
+                      href={settlement.explorerUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 text-xs font-mono transition-colors"
+                    >
+                      View settlement on ArcScan <ExternalLink className="w-3 h-3" />
+                    </a>
+                  ) : settlementChecking ? (
+                    <div className="flex items-center gap-1.5 text-white/30 text-xs">
+                      <Loader2 className="w-3 h-3 animate-spin" /> Waiting for Gateway batch to settle onchain…
+                    </div>
+                  ) : (
+                    <div className="text-white/20 text-xs">Not yet settled — Gateway batches payments periodically.</div>
+                  )}
+                  <div className="text-white/15 text-[10px] mt-1">
+                    Multiple payments may share one settlement hash — that's how batching keeps fees near zero.
                   </div>
                 </div>
               </motion.div>
