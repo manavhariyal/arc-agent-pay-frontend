@@ -49,9 +49,9 @@ export default function X402Demo() {
   const pollSettlement = useCallback(async (transferId: string) => {
     setSettlementChecking(true);
     setSettlement(null);
-    // Gateway settles batches on its own cadence, not instantly — poll a
-    // handful of times rather than blocking the initial response on it.
-    for (let attempt = 0; attempt < 15; attempt++) {
+    // Gateway settles batches on its own cadence, not instantly — poll for
+    // a couple minutes before falling back to a manual "check again" button.
+    for (let attempt = 0; attempt < 20; attempt++) {
       try {
         const res = await fetch(`${BACKEND_URL}/api/x402-demo/settlement/${transferId}`);
         const json: SettlementInfo = await res.json();
@@ -60,7 +60,7 @@ export default function X402Demo() {
       } catch {
         // keep trying — a single failed check isn't worth surfacing as an error
       }
-      await new Promise((r) => setTimeout(r, 4000));
+      await new Promise((r) => setTimeout(r, 8000));
     }
     setSettlementChecking(false);
   }, []);
@@ -286,7 +286,15 @@ export default function X402Demo() {
                       <Loader2 className="w-3 h-3 animate-spin" /> Waiting for Gateway batch to settle onchain…
                     </div>
                   ) : (
-                    <div className="text-white/20 text-xs">Not yet settled — Gateway batches payments periodically.</div>
+                    <div className="space-y-2">
+                      <div className="text-white/20 text-xs">Not yet settled — Gateway batches payments periodically, this can take a few minutes.</div>
+                      <button
+                        onClick={() => pollSettlement(result.transferId)}
+                        className="text-xs text-indigo-400 hover:text-indigo-300 underline decoration-dotted"
+                      >
+                        Check again
+                      </button>
+                    </div>
                   )}
                   <div className="text-white/15 text-[10px] mt-1">
                     Multiple payments may share one settlement hash — that's how batching keeps fees near zero.
