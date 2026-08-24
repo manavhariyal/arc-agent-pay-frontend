@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useWallet } from '@/hooks/useWallet'
 import { useUserBalance } from '@/hooks/useUserBalance'
+import { useSendPayment } from '@/hooks/useSendPayment'
 import { Copy, Zap, CheckCircle2, ExternalLink } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { ARC_NETWORK } from '@/config/arc-network'
@@ -24,6 +25,8 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
   const [step, setStep] = useState<'input' | 'sending' | 'success'>('input')
   const [txHash, setTxHash] = useState('')
 
+  const { send, hash, isConfirmed, error, reset } = useSendPayment()
+
   const copyAddress = () => {
     navigator.clipboard.writeText(TREASURY_ADDRESS)
     toast({ title: 'Copied!', description: 'Treasury address copied.' })
@@ -32,44 +35,39 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
   const handleDeposit = async () => {
     if (!amount || parseFloat(amount) <= 0) return
     setStep('sending')
-
-    try {
-      const { ethereum } = window as any
-      if (!ethereum) throw new Error('MetaMask not found')
-
-      const USDC_ADDRESS = '0x3600000000000000000000000000000000000000'
-      const amountInUnits = BigInt(Math.floor(parseFloat(amount) * 1000000))
-      const amountHex = amountInUnits.toString(16).padStart(64, '0')
-
-      const transferFn = '0xa9059cbb'
-      const paddedAddress = TREASURY_ADDRESS.slice(2).padStart(64, '0')
-      const data = transferFn + paddedAddress + amountHex
-
-      const tx = await ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [{
-          from: address,
-          to: USDC_ADDRESS,
-          data,
-          gas: '0x15F90',
-        }],
-      })
-
-      setTxHash(tx)
-      await recordDeposit(parseFloat(amount), tx)
-      await fetchBalance()
-      setStep('success')
-      toast({ title: 'Deposit Successful!', description: amount + ' USDC deposited!' })
-    } catch (err: any) {
-      setStep('input')
-      toast({ title: 'Transaction failed', description: err.message || 'Please try again.', variant: 'destructive' })
-    }
+    reset()
+    // Uses the same properly wallet-connector-aware send path as the rest
+    // of the app (not a raw window.ethereum call), so it always uses
+    // whichever wallet is actually connected, even with multiple wallet
+    // extensions installed.
+    send(TREASURY_ADDRESS as `0x${string}`, amount)
   }
+
+  useEffect(() => {
+    if (!hash) return
+    if (isConfirmed) {
+      (async () => {
+        setTxHash(hash)
+        await recordDeposit(parseFloat(amount), hash)
+        await fetchBalance()
+        setStep('success')
+        toast({ title: 'Deposit Successful!', description: amount + ' USDC deposited!' })
+      })()
+    }
+  }, [isConfirmed, hash])
+
+  useEffect(() => {
+    if (error) {
+      setStep('input')
+      toast({ title: 'Transaction failed', description: error.message || 'Please try again.', variant: 'destructive' })
+    }
+  }, [error])
 
   const handleClose = () => {
     setStep('input')
     setAmount('')
     setTxHash('')
+    reset()
     onClose()
   }
 
