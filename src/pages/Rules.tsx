@@ -120,7 +120,7 @@ export default function Rules() {
               {backendAvailable ? (
                 <><CheckCircle2 className="w-3 h-3" /> Auto-Pay Active</>
               ) : (
-                <><AlertCircle className="w-3 h-3" /> Local Mode</>
+                <><AlertCircle className="w-3 h-3" /> Local Mode — won't auto-run</>
               )}
             </div>
             <Button
