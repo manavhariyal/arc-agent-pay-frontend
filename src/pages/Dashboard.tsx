@@ -5,7 +5,14 @@ import { useTransactions } from "@/hooks/useTransactions";
 import { useUserBalance } from "@/hooks/useUserBalance";
 import { formatUSDC, truncateAddress } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { Wallet, Activity, Zap, Copy, ArrowUpRight, ExternalLink, AlertTriangle, Send, Plus, Droplets, ShieldAlert } from "lucide-react";
+import { Wallet, Activity, Zap, Copy, ArrowUpRight, ExternalLink, AlertTriangle, Send, Plus, Droplets, ShieldAlert, LogOut, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -20,7 +27,7 @@ import { useAgentHealth } from "@/context/AgentHealthContext";
 
 export default function Dashboard() {
   const { toast } = useToast();
-  const { address, isConnected, isOnArcTestnet, formattedBalance, isBalanceLoading, isBalanceError, refetchBalance } = useWallet();
+  const { address, isConnected, isOnArcTestnet, formattedBalance, isBalanceLoading, isBalanceError, refetchBalance, disconnect } = useWallet();
   const { agents } = useAgents();
   const { transactions } = useTransactions(address);
   const { alerts } = useAgentHealth();
@@ -92,20 +99,46 @@ export default function Dashboard() {
           <div className="flex items-center gap-3">
             {isConnected && isOnArcTestnet ? (
               <>
-                <button
-                  onClick={() => copyToClipboard(address!)}
-                  className="flex items-center gap-3 px-4 py-2.5 rounded-xl glass-panel border border-indigo-500/20 hover:border-indigo-500/40 transition-all cursor-pointer"
-                >
-                  <Wallet className="w-4 h-4 text-indigo-400" />
-                  <span className="font-mono text-sm text-white">{truncateAddress(address!)}</span>
-                  <div className="w-px h-4 bg-white/10" />
-                  <span className="font-bold text-cyan-400 font-mono text-sm">
-                    {isBalanceLoading ? "…" : isBalanceError || formattedBalance == null ? (
-                      <button onClick={() => refetchBalance()} className="text-rose-400 hover:text-rose-300 underline decoration-dotted">retry</button>
-                    ) : `${formattedBalance} USDC`}
-                  </span>
-                  <Copy className="w-3.5 h-3.5 text-white/30" />
-                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className="flex items-center gap-3 px-4 py-2.5 rounded-xl glass-panel border border-indigo-500/20 hover:border-indigo-500/40 transition-all cursor-pointer"
+                    >
+                      <Wallet className="w-4 h-4 text-indigo-400" />
+                      <span className="font-mono text-sm text-white">{truncateAddress(address!)}</span>
+                      <div className="w-px h-4 bg-white/10" />
+                      <span className="font-bold text-cyan-400 font-mono text-sm">
+                        {isBalanceLoading ? "…" : isBalanceError || formattedBalance == null ? (
+                          <span className="text-rose-400">retry</span>
+                        ) : `${formattedBalance} USDC`}
+                      </span>
+                      <ChevronDown className="w-3.5 h-3.5 text-white/30" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-64">
+                    <div className="p-3 border-b">
+                      <div className="text-xs mb-1 text-white/40">Connected wallet</div>
+                      <div className="text-xs break-all text-white/70">{address}</div>
+                    </div>
+                    <DropdownMenuItem onClick={() => copyToClipboard(address!)}>
+                      <Copy className="w-3 h-3 mr-2" /> Copy address
+                    </DropdownMenuItem>
+                    {isBalanceError && (
+                      <DropdownMenuItem onClick={() => refetchBalance()}>
+                        <ArrowUpRight className="w-3 h-3 mr-2" /> Retry balance
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem asChild>
+                      <a href={`${ARC_NETWORK.explorerUrl}/address/${address}`} target="_blank" rel="noreferrer">
+                        <ExternalLink className="w-3 h-3 mr-2" /> View Explorer
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => disconnect()} className="text-rose-400 focus:text-rose-300">
+                      <LogOut className="w-3 h-3 mr-2" /> Disconnect
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <Button
                   onClick={() => setDepositOpen(true)}
                   variant="outline"
@@ -163,8 +196,8 @@ export default function Dashboard() {
             <div className="flex items-center gap-3">
               <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0" />
               <div>
-                <p className="text-sm font-bold text-rose-300">No funds deposited yet!</p>
-                <p className="text-xs text-rose-400/70">Deposit USDC to the treasury to enable automatic payments for your agents.</p>
+                <p className="text-sm font-bold text-rose-300">Auto-pay treasury is empty</p>
+                <p className="text-xs text-rose-400/70">Deposit USDC to enable automatic scheduled payments for your agents. This is separate from Quick Send, which sends directly from your own wallet.</p>
               </div>
             </div>
             <Button
