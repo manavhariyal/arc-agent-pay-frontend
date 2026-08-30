@@ -84,7 +84,7 @@ export default function Analytics() {
     return { name: agent.name, volume: vol, count: agentLocalTxs.length + agentBackendTxs.length };
   }).filter(a => a.volume > 0).sort((a, b) => b.volume - a.volume);
 
-  const COLORS = ["#6366f1", "#06b6d4", "#8b5cf6", "#10b981", "#f59e0b"];
+  const COLORS = ["#0A84FF", "#22F0FF", "#8b5cf6", "#10b981", "#f59e0b"];
 
   if (!isConnected) {
     return (
@@ -92,15 +92,15 @@ export default function Analytics() {
         <div className="space-y-6 max-w-7xl mx-auto">
           <div>
             <h1 className="text-4xl font-black tracking-tight text-white mb-2 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center border border-cyan-500/20">
-                <BarChart3 className="w-7 h-7 text-cyan-400" />
+              <div className="w-12 h-12 rounded-xl bg-[#05D8EA]/20 flex items-center justify-center border border-[#05D8EA]/20">
+                <BarChart3 className="w-7 h-7 text-[#22F0FF]" />
               </div>
               Analytics
             </h1>
-            <div className="h-1 w-16 bg-cyan-400 rounded-full mt-2"></div>
+            <div className="h-1 w-16 bg-[#22F0FF] rounded-full mt-2"></div>
           </div>
           <div className="glass-panel-elevated rounded-2xl p-12 text-center">
-            <Wallet className="w-12 h-12 mx-auto mb-4 text-indigo-400/30" />
+            <Wallet className="w-12 h-12 mx-auto mb-4 text-[#3AB4FF]/30" />
             <h2 className="text-white font-bold text-xl mb-2">Connect your wallet</h2>
             <p className="text-white/40 text-sm mb-6">Connect to Arc Testnet to see your payment analytics.</p>
             <WalletButton />
@@ -115,12 +115,12 @@ export default function Analytics() {
       <div className="space-y-8 max-w-7xl mx-auto">
         <div>
           <h1 className="text-4xl font-black tracking-tight text-white mb-2 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center border border-cyan-500/20">
-              <BarChart3 className="w-7 h-7 text-cyan-400" />
+            <div className="w-12 h-12 rounded-xl bg-[#05D8EA]/20 flex items-center justify-center border border-[#05D8EA]/20">
+              <BarChart3 className="w-7 h-7 text-[#22F0FF]" />
             </div>
             Analytics
           </h1>
-          <div className="h-1 w-16 bg-cyan-400 rounded-full mb-4 mt-2"></div>
+          <div className="h-1 w-16 bg-[#22F0FF] rounded-full mb-4 mt-2"></div>
           <p className="text-white/40 text-sm">Real-time metrics from your Arc Testnet transactions.</p>
         </div>
 
@@ -147,7 +147,7 @@ export default function Analytics() {
 
         {totalTxCount === 0 ? (
           <div className="glass-panel-elevated rounded-2xl p-12 text-center">
-            <Send className="w-10 h-10 mx-auto mb-4 text-indigo-400/30" />
+            <Send className="w-10 h-10 mx-auto mb-4 text-[#3AB4FF]/30" />
             <h2 className="text-white font-bold text-lg mb-2">No data yet</h2>
             <p className="text-white/40 text-sm">Send payments through Arc Agent Pay and analytics will populate here automatically.</p>
           </div>
@@ -164,18 +164,18 @@ export default function Analytics() {
                     <AreaChart data={chartData} margin={{ top: 0, right: 8, left: -20, bottom: 0 }}>
                       <defs>
                         <linearGradient id="colorVol" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#6366f1" stopOpacity={0.7} />
-                          <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                          <stop offset="5%" stopColor="#0A84FF" stopOpacity={0.7} />
+                          <stop offset="95%" stopColor="#0A84FF" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
                       <XAxis dataKey="date" stroke="rgba(255,255,255,0.3)" fontSize={11} tickLine={false} axisLine={false} dy={8} />
                       <YAxis stroke="rgba(255,255,255,0.3)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} dx={-4} />
                       <RechartsTooltip
-                        contentStyle={{ backgroundColor: "rgba(10,13,25,0.95)", borderColor: "rgba(99,102,241,0.3)", color: "#fff", borderRadius: "12px", fontSize: 12 }}
+                        contentStyle={{ backgroundColor: "rgba(10,13,25,0.95)", borderColor: "rgba(10,132,255,0.3)", color: "#fff", borderRadius: "12px", fontSize: 12 }}
                         formatter={(value: number) => [formatUSDC(value), "Volume"]}
                       />
-                      <Area type="monotone" dataKey="amount" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorVol)" />
+                      <Area type="monotone" dataKey="amount" stroke="#0A84FF" strokeWidth={3} fillOpacity={1} fill="url(#colorVol)" />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -195,13 +195,13 @@ export default function Analytics() {
                       <XAxis dataKey="date" stroke="rgba(255,255,255,0.3)" fontSize={11} tickLine={false} axisLine={false} dy={8} />
                       <YAxis stroke="rgba(255,255,255,0.3)" fontSize={11} tickLine={false} axisLine={false} dx={-4} allowDecimals={false} />
                       <RechartsTooltip
-                        contentStyle={{ backgroundColor: "rgba(10,13,25,0.95)", borderColor: "rgba(6,182,212,0.3)", color: "#fff", borderRadius: "12px", fontSize: 12 }}
+                        contentStyle={{ backgroundColor: "rgba(10,13,25,0.95)", borderColor: "rgba(34,240,255,0.3)", color: "#fff", borderRadius: "12px", fontSize: 12 }}
                         cursor={{ fill: "rgba(255,255,255,0.03)" }}
                         formatter={(value: number) => [value, "Transactions"]}
                       />
                       <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={40}>
                         {chartData.map((_, index) => (
-                          <Cell key={index} fill={index === chartData.length - 1 ? "#06b6d4" : "#6366f1"} opacity={0.8} />
+                          <Cell key={index} fill={index === chartData.length - 1 ? "#22F0FF" : "#0A84FF"} opacity={0.8} />
                         ))}
                       </Bar>
                     </BarChart>
