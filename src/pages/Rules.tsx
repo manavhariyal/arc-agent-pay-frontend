@@ -106,7 +106,7 @@ export default function Rules() {
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-4xl font-black tracking-tight text-white mb-2">Rule Builder</h1>
-            <div className="h-1 w-16 bg-cyan-400 rounded-full mb-3"></div>
+            <div className="h-1 w-16 bg-[#22F0FF] rounded-full mb-3"></div>
             <p className="text-white/40 text-sm">Configure autonomous spending parameters for your registered agents.</p>
           </div>
           <div className="flex items-center gap-3">
@@ -149,8 +149,8 @@ export default function Rules() {
 
         {/* Backend info banner */}
         {backendAvailable && (
-          <div className="glass-panel-elevated rounded-2xl p-4 border border-cyan-500/20 bg-cyan-500/5 text-cyan-300 text-sm flex items-center gap-3">
-            <Zap className="w-5 h-5 shrink-0 text-cyan-400" />
+          <div className="glass-panel-elevated rounded-2xl p-4 border border-[#05D8EA]/20 bg-[#05D8EA]/5 text-[#9FF6FF] text-sm flex items-center gap-3">
+            <Zap className="w-5 h-5 shrink-0 text-[#22F0FF]" />
             <span>
               <strong>Auto-Payment Scheduler is active!</strong> Rules will execute automatically on Arc Testnet every hour/day based on your schedule. No action needed from you.
             </span>
@@ -169,18 +169,18 @@ export default function Rules() {
           <div className="lg:col-span-1">
             <Card className="glass-panel-elevated p-8 rounded-3xl sticky top-8">
               <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-500/20 flex items-center justify-center">
-                  <Plus className="w-5 h-5 text-indigo-400" />
+                <div className="w-9 h-9 rounded-xl bg-[#0A84FF]/20 border border-[#0A84FF]/20 flex items-center justify-center">
+                  <Plus className="w-5 h-5 text-[#3AB4FF]" />
                 </div>
                 New Rule
               </h2>
 
               <Tabs value={tab} onValueChange={(v) => setTab(v as "recurring" | "one-time")} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 glass-panel border-indigo-500/20 mb-6 p-1 rounded-full">
-                  <TabsTrigger value="recurring" className="rounded-full font-semibold text-sm data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+                <TabsList className="grid w-full grid-cols-2 glass-panel border-[#0A84FF]/20 mb-6 p-1 rounded-full">
+                  <TabsTrigger value="recurring" className="rounded-full font-semibold text-sm data-[state=active]:bg-[#0B3FD1] data-[state=active]:text-white">
                     Recurring
                   </TabsTrigger>
-                  <TabsTrigger value="one-time" className="rounded-full font-semibold text-sm data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+                  <TabsTrigger value="one-time" className="rounded-full font-semibold text-sm data-[state=active]:bg-[#0B3FD1] data-[state=active]:text-white">
                     One-time
                   </TabsTrigger>
                 </TabsList>
@@ -193,10 +193,10 @@ export default function Rules() {
                       onValueChange={(v) => setForm((f) => ({ ...f, agentId: v }))}
                       disabled={agents.length === 0}
                     >
-                      <SelectTrigger className="glass-panel border-indigo-500/20 text-white h-11 rounded-xl">
+                      <SelectTrigger className="glass-panel border-[#0A84FF]/20 text-white h-11 rounded-xl">
                         <SelectValue placeholder="Select agent…" />
                       </SelectTrigger>
-                      <SelectContent className="glass-panel-elevated border-indigo-500/20 rounded-xl">
+                      <SelectContent className="glass-panel-elevated border-[#0A84FF]/20 rounded-xl">
                         {agents.map((a) => (
                           <SelectItem key={a.id} value={a.id} className="text-white rounded-lg">
                             {a.name}
@@ -213,7 +213,7 @@ export default function Rules() {
                       onChange={(e) => setForm((f) => ({ ...f, recipient: e.target.value }))}
                       placeholder="0x…"
                       className={cn(
-                        "glass-panel border-indigo-500/20 text-white font-mono h-11 rounded-xl focus-visible:ring-indigo-500/40",
+                        "glass-panel border-[#0A84FF]/20 text-white font-mono h-11 rounded-xl focus-visible:ring-[#0A84FF]/40",
                         form.recipient && !isValidAddress(form.recipient) && "border-rose-500/40"
                       )}
                     />
@@ -225,7 +225,7 @@ export default function Rules() {
                       value={form.recipientLabel}
                       onChange={(e) => setForm((f) => ({ ...f, recipientLabel: e.target.value }))}
                       placeholder="e.g. Oracle Provider"
-                      className="glass-panel border-indigo-500/20 text-white h-11 rounded-xl focus-visible:ring-indigo-500/40"
+                      className="glass-panel border-[#0A84FF]/20 text-white h-11 rounded-xl focus-visible:ring-[#0A84FF]/40"
                     />
                   </div>
 
@@ -238,7 +238,7 @@ export default function Rules() {
                       placeholder="0.00"
                       min="0"
                       step="0.001"
-                      className="glass-panel border-indigo-500/20 text-white h-11 rounded-xl focus-visible:ring-indigo-500/40"
+                      className="glass-panel border-[#0A84FF]/20 text-white h-11 rounded-xl focus-visible:ring-[#0A84FF]/40"
                     />
                   </div>
 
@@ -246,10 +246,10 @@ export default function Rules() {
                     <div className="grid gap-2 mt-4">
                       <Label className="text-white/40 text-xs font-semibold uppercase tracking-wider">Schedule</Label>
                       <Select value={form.interval} onValueChange={(v) => setForm((f) => ({ ...f, interval: v as RuleForm["interval"] }))}>
-                        <SelectTrigger className="glass-panel border-indigo-500/20 text-white h-11 rounded-xl">
+                        <SelectTrigger className="glass-panel border-[#0A84FF]/20 text-white h-11 rounded-xl">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="glass-panel-elevated border-indigo-500/20 rounded-xl">
+                        <SelectContent className="glass-panel-elevated border-[#0A84FF]/20 rounded-xl">
                           <SelectItem value="hourly" className="text-white rounded-lg">Every Hour</SelectItem>
                           <SelectItem value="every6h" className="text-white rounded-lg">Every 6 Hours</SelectItem>
                           <SelectItem value="every12h" className="text-white rounded-lg">Every 12 Hours</SelectItem>
@@ -264,7 +264,7 @@ export default function Rules() {
                   <Button
                     onClick={handleDeploy}
                     disabled={!canSubmit}
-                    className="w-full mt-4 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700 text-white h-12 rounded-xl font-bold disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full mt-4 bg-gradient-to-r from-[#0B3FD1] to-[#049CAE] hover:from-[#072E9E] hover:to-[#037685] text-white h-12 rounded-xl font-bold disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Plus className="w-4 h-4 mr-2" /> Create Rule
                   </Button>
@@ -276,7 +276,7 @@ export default function Rules() {
           {/* Rules list */}
           <div className="lg:col-span-2">
             <h2 className="text-xl font-bold text-white mb-5 flex items-center gap-3">
-              <Settings2 className="w-5 h-5 text-cyan-400" /> Configured Rules
+              <Settings2 className="w-5 h-5 text-[#22F0FF]" /> Configured Rules
               {rules.length > 0 && (
                 <span className="text-sm font-normal text-white/30">({rules.length})</span>
               )}
@@ -284,13 +284,13 @@ export default function Rules() {
 
             {loading && rules.length === 0 ? (
               <div className="glass-panel-elevated rounded-2xl p-12 text-center">
-                <RefreshCw className="w-8 h-8 mx-auto mb-3 text-cyan-400 animate-spin" />
+                <RefreshCw className="w-8 h-8 mx-auto mb-3 text-[#22F0FF] animate-spin" />
                 <p className="text-white/40 text-sm">Loading rules...</p>
               </div>
             ) : rules.length === 0 ? (
               <div className="glass-panel-elevated rounded-2xl p-12 text-center">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                  <Shield className="w-7 h-7 text-cyan-400/50" />
+                <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[#05D8EA]/10 border border-[#05D8EA]/20 flex items-center justify-center">
+                  <Shield className="w-7 h-7 text-[#22F0FF]/50" />
                 </div>
                 <h3 className="text-white font-bold text-lg mb-2">No rules yet</h3>
                 <p className="text-white/40 text-sm">Create spending rules to define how agents should dispatch payments automatically.</p>
@@ -301,14 +301,14 @@ export default function Rules() {
                   <motion.div key={rule.id} variants={item}>
                     <div className={cn(
                       "glass-panel-elevated p-6 rounded-2xl border transition-all",
-                      rule.status === "active" ? "border-cyan-500/20" : "border-white/[0.04]"
+                      rule.status === "active" ? "border-[#05D8EA]/20" : "border-white/[0.04]"
                     )}>
                       <div className="flex flex-col sm:flex-row gap-5 justify-between items-start sm:items-center">
                         <div className="flex items-start gap-4">
                           <div className={cn(
                             "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border",
                             rule.status === "active"
-                              ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-400"
+                              ? "bg-[#05D8EA]/10 border-[#05D8EA]/20 text-[#22F0FF]"
                               : "bg-white/[0.04] border-white/10 text-white/30"
                           )}>
                             <Shield className="w-5 h-5" />
@@ -316,7 +316,7 @@ export default function Rules() {
                           <div>
                             <div className="flex flex-wrap items-center gap-2 mb-1.5">
                               <span className="font-bold text-white">{rule.agentName}</span>
-                              <Badge variant="outline" className="text-[10px] uppercase font-bold tracking-wider text-indigo-400 border-indigo-400/30 bg-indigo-400/10">
+                              <Badge variant="outline" className="text-[10px] uppercase font-bold tracking-wider text-[#3AB4FF] border-[#3AB4FF]/30 bg-[#3AB4FF]/10">
                                 {rule.type}
                               </Badge>
                               <Badge variant="outline" className={cn(
@@ -327,7 +327,7 @@ export default function Rules() {
                               </Badge>
                             </div>
                             <div className="flex flex-wrap items-center gap-2 text-sm">
-                              <span className="font-mono font-bold text-cyan-400">{formatUSDC(parseFloat(rule.amount))}</span>
+                              <span className="font-mono font-bold text-[#22F0FF]">{formatUSDC(parseFloat(rule.amount))}</span>
                               {rule.interval && (
                                 <span className="text-white/40 flex items-center gap-1">
                                   <Clock className="w-3 h-3" />
@@ -364,7 +364,7 @@ export default function Rules() {
                               size="icon"
                               onClick={() => handleExecuteNow(rule.id)}
                               disabled={executing === rule.id}
-                              className="rounded-full h-9 w-9 text-cyan-400/60 hover:text-cyan-400 hover:bg-cyan-500/10 transition-colors"
+                              className="rounded-full h-9 w-9 text-[#22F0FF]/60 hover:text-[#22F0FF] hover:bg-[#05D8EA]/10 transition-colors"
                               title="Execute now"
                             >
                               {executing === rule.id ? (
