@@ -40,7 +40,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             src="/arc-logo.png"
             alt="Arc Agent Pay"
             className="h-8 w-auto object-contain"
-            style={{ filter: 'drop-shadow(0 0 8px rgba(99,102,241,0.35))' }}
+            style={{ filter: 'drop-shadow(0 0 8px rgba(10,132,255,0.35))' }}
           />
         </div>
 
@@ -51,11 +51,11 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               onClick={() => setSendOpen(true)}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-white font-semibold text-sm transition-all"
               style={{
-                background: "linear-gradient(135deg, rgba(99,102,241,0.9) 0%, rgba(6,182,212,0.85) 100%)",
-                boxShadow: "0 0 20px rgba(99,102,241,0.2)",
+                background: "linear-gradient(135deg, rgba(10,132,255,0.9) 0%, rgba(34,240,255,0.85) 100%)",
+                boxShadow: "0 0 20px rgba(10,132,255,0.2)",
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 28px rgba(99,102,241,0.35)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 20px rgba(99,102,241,0.2)"; }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 28px rgba(10,132,255,0.35)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 20px rgba(10,132,255,0.2)"; }}
             >
               <Send className="w-3.5 h-3.5" /> Quick Send
             </button>
@@ -79,15 +79,15 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                       : "text-white/35 hover:text-white/70 hover:bg-white/[0.03]"
                   )}
                   style={isActive ? {
-                    background: "rgba(99,102,241,0.1)",
-                    borderLeft: "2px solid rgba(99,102,241,0.8)",
+                    background: "rgba(10,132,255,0.1)",
+                    borderLeft: "2px solid rgba(10,132,255,0.8)",
                   } : {
                     borderLeft: "2px solid transparent",
                   }}
                 >
                   <Icon className={cn(
                     "w-4 h-4 shrink-0 transition-colors",
-                    isActive ? "text-indigo-400" : "text-white/25"
+                    isActive ? "text-[#3AB4FF]" : "text-white/25"
                   )} />
                   <span className="font-medium text-sm tracking-tight">{link.label}</span>
                 </motion.div>
@@ -116,7 +116,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             {blockNumber !== undefined && (
               <div className="mt-1.5 flex items-center justify-between">
                 <span className="text-[10px] text-white/20 uppercase tracking-wider">Block</span>
-                <span className="text-[10px] font-mono font-bold text-cyan-400/60">#{blockNumber.toString()}</span>
+                <span className="text-[10px] font-mono font-bold text-[#22F0FF]/60">#{blockNumber.toString()}</span>
               </div>
             )}
           </div>
