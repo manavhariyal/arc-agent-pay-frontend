@@ -85,7 +85,7 @@ export function WalletButton({ compact = false }: { compact?: boolean }) {
             disabled={isConnecting}
             className={cn(
               'bg-primary hover:bg-primary/90 text-white font-semibold',
-              'shadow-[0_0_20px_rgba(99,102,241,0.35)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]',
+              'shadow-[0_0_20px_rgba(10,132,255,0.35)] hover:shadow-[0_0_30px_rgba(10,132,255,0.5)]',
               compact && 'w-full justify-center'
             )}
           >
