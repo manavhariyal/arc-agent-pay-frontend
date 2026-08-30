@@ -142,7 +142,7 @@ export default function AgentDetail() {
           <h2 className="text-3xl font-bold text-white mb-3">Agent Not Found</h2>
           <p className="text-white/40 mb-8">This agent doesn't exist or has been removed.</p>
           <Link href="/agents">
-            <Button className="bg-indigo-600 text-white rounded-full px-8 h-11">Back to Agents</Button>
+            <Button className="bg-[#0B3FD1] text-white rounded-full px-8 h-11">Back to Agents</Button>
           </Link>
         </div>
       </AppLayout>
@@ -199,10 +199,10 @@ export default function AgentDetail() {
 
           <div className="flex gap-3 shrink-0 flex-wrap">
             <Select value={agent.status} onValueChange={(v) => setAgentStatus(agent.id, v as AgentStatus)}>
-              <SelectTrigger className="glass-panel border-indigo-500/20 text-white h-11 rounded-full w-36">
+              <SelectTrigger className="glass-panel border-[#0A84FF]/20 text-white h-11 rounded-full w-36">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="glass-panel-elevated border-indigo-500/20 rounded-xl">
+              <SelectContent className="glass-panel-elevated border-[#0A84FF]/20 rounded-xl">
                 <SelectItem value="active" className="text-white rounded-lg">
                   Active
                 </SelectItem>
@@ -217,7 +217,7 @@ export default function AgentDetail() {
             <Button
               onClick={copyPayLink}
               variant="outline"
-              className="glass-panel border-indigo-500/20 text-white/70 hover:text-white rounded-full h-11 px-5 font-semibold hover:border-indigo-500/50 transition-all"
+              className="glass-panel border-[#0A84FF]/20 text-white/70 hover:text-white rounded-full h-11 px-5 font-semibold hover:border-[#0A84FF]/50 transition-all"
             >
               {copiedPayLink ? (
                 <>
@@ -231,7 +231,7 @@ export default function AgentDetail() {
             </Button>
             <Button
               onClick={() => setSendOpen(true)}
-              className="bg-gradient-to-r from-indigo-600 to-cyan-600 text-white rounded-full h-11 px-6 font-semibold shadow-[0_0_16px_rgba(99,102,241,0.35)]"
+              className="bg-gradient-to-r from-[#0B3FD1] to-[#049CAE] text-white rounded-full h-11 px-6 font-semibold shadow-[0_0_16px_rgba(10,132,255,0.35)]"
             >
               <Send className="w-4 h-4 mr-2" /> Fund Wallet
             </Button>
@@ -239,11 +239,11 @@ export default function AgentDetail() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <Card className="glass-panel-elevated p-7 rounded-2xl md:col-span-2 relative overflow-hidden border-l-4 border-l-indigo-500">
-            <div className="absolute right-0 top-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px] pointer-events-none" />
+          <Card className="glass-panel-elevated p-7 rounded-2xl md:col-span-2 relative overflow-hidden border-l-4 border-l-[#0A84FF]">
+            <div className="absolute right-0 top-0 w-64 h-64 bg-[#0A84FF]/5 rounded-full blur-[80px] pointer-events-none" />
             <div className="flex justify-between items-start mb-5 relative z-10">
               <div className="text-white/40 font-semibold uppercase tracking-wider text-xs">Agent Wallet</div>
-              <Wallet className="w-5 h-5 text-indigo-400" />
+              <Wallet className="w-5 h-5 text-[#3AB4FF]" />
             </div>
             <div className="relative z-10">
               <motion.div
@@ -259,15 +259,15 @@ export default function AgentDetail() {
                   </button>
                 ) : (
                   <span>
-                    {formattedBalance} <span className="text-xl font-medium text-indigo-300">USDC</span>
+                    {formattedBalance} <span className="text-xl font-medium text-[#8FD6FF]">USDC</span>
                   </span>
                 )}
               </motion.div>
               <div
-                className="flex items-center gap-3 glass-panel px-4 py-2 rounded-full w-fit cursor-pointer hover:border-indigo-500/40 transition-colors"
+                className="flex items-center gap-3 glass-panel px-4 py-2 rounded-full w-fit cursor-pointer hover:border-[#0A84FF]/40 transition-colors"
                 onClick={() => copyToClipboard(agent.walletAddress)}
               >
-                <span className="font-mono text-cyan-400 text-sm">{agent.walletAddress}</span>
+                <span className="font-mono text-[#22F0FF] text-sm">{agent.walletAddress}</span>
                 <Copy className="w-3.5 h-3.5 text-white/30" />
                 <a href={explorerAddressUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-white/30 hover:text-white transition-colors">
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -276,11 +276,11 @@ export default function AgentDetail() {
             </div>
           </Card>
 
-          <Card className="glass-panel-elevated p-7 rounded-2xl border-l-4 border-l-cyan-500 relative overflow-hidden">
-            <div className="absolute right-0 top-0 w-48 h-48 bg-cyan-500/5 rounded-full blur-[60px] pointer-events-none" />
+          <Card className="glass-panel-elevated p-7 rounded-2xl border-l-4 border-l-[#05D8EA] relative overflow-hidden">
+            <div className="absolute right-0 top-0 w-48 h-48 bg-[#05D8EA]/5 rounded-full blur-[60px] pointer-events-none" />
             <div className="flex justify-between items-start mb-5 relative z-10">
               <div className="text-white/40 font-semibold uppercase tracking-wider text-xs">Spending Rules</div>
-              <Shield className="w-5 h-5 text-cyan-400" />
+              <Shield className="w-5 h-5 text-[#22F0FF]" />
             </div>
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative z-10">
               <div className="text-5xl font-black text-white mb-2">{agentRules.length}</div>
@@ -299,18 +299,18 @@ export default function AgentDetail() {
                 value: formatUSDC(stats.totalSent),
                 unit: "USDC",
                 icon: <Send className="w-4 h-4" />,
-                color: "text-indigo-400",
-                border: "border-l-indigo-500",
-                glow: "bg-indigo-500/5",
+                color: "text-[#3AB4FF]",
+                border: "border-l-[#0A84FF]",
+                glow: "bg-[#0A84FF]/5",
               },
               {
                 label: "Total Transactions",
                 value: stats.txCount.toString(),
                 unit: stats.confirmedCount + " confirmed",
                 icon: <History className="w-4 h-4" />,
-                color: "text-cyan-400",
-                border: "border-l-cyan-500",
-                glow: "bg-cyan-500/5",
+                color: "text-[#22F0FF]",
+                border: "border-l-[#05D8EA]",
+                glow: "bg-[#05D8EA]/5",
               },
               {
                 label: "Success Rate",
@@ -353,14 +353,14 @@ export default function AgentDetail() {
             ))}
           </div>
 
-          <Card className="glass-panel-elevated p-6 rounded-2xl lg:col-span-2 relative overflow-hidden border border-indigo-500/10">
-            <div className="absolute right-0 top-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px] pointer-events-none" />
+          <Card className="glass-panel-elevated p-6 rounded-2xl lg:col-span-2 relative overflow-hidden border border-[#0A84FF]/10">
+            <div className="absolute right-0 top-0 w-64 h-64 bg-[#0A84FF]/5 rounded-full blur-[80px] pointer-events-none" />
             <div className="flex justify-between items-center mb-5 relative z-10">
               <div>
                 <div className="text-white/40 text-xs font-semibold uppercase tracking-wider mb-1">Payment Activity</div>
                 <div className="text-white font-bold text-sm">Last 30 days · USDC Sent</div>
               </div>
-              <TrendingUp className="w-4 h-4 text-indigo-400" />
+              <TrendingUp className="w-4 h-4 text-[#3AB4FF]" />
             </div>
             {stats.txCount === 0 ? (
               <div className="flex flex-col items-center justify-center h-40 text-white/20 text-sm">
@@ -373,8 +373,8 @@ export default function AgentDetail() {
                   <AreaChart data={stats.sparkline} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
                     <defs>
                       <linearGradient id="agentSparkGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.35} />
-                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#0A84FF" stopOpacity={0.35} />
+                        <stop offset="95%" stopColor="#0A84FF" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
@@ -394,23 +394,23 @@ export default function AgentDetail() {
                     <Tooltip
                       contentStyle={{
                         background: "rgba(10,10,20,0.92)",
-                        border: "1px solid rgba(99,102,241,0.3)",
+                        border: "1px solid rgba(10,132,255,0.3)",
                         borderRadius: "12px",
                         color: "white",
                         fontSize: 12,
                       }}
                       formatter={(value) => [value + " USDC", "Sent"]}
                       labelStyle={{ color: "rgba(255,255,255,0.5)", marginBottom: 2 }}
-                      cursor={{ stroke: "rgba(99,102,241,0.3)" }}
+                      cursor={{ stroke: "rgba(10,132,255,0.3)" }}
                     />
                     <Area
                       type="monotone"
                       dataKey="usdc"
-                      stroke="#6366f1"
+                      stroke="#0A84FF"
                       strokeWidth={2}
                       fill="url(#agentSparkGrad)"
                       dot={false}
-                      activeDot={{ r: 4, fill: "#6366f1", stroke: "#fff", strokeWidth: 2 }}
+                      activeDot={{ r: 4, fill: "#0A84FF", stroke: "#fff", strokeWidth: 2 }}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -420,16 +420,16 @@ export default function AgentDetail() {
         </div>
 
         <Tabs defaultValue="transactions">
-          <TabsList className="glass-panel border-indigo-500/20 mb-6 p-1.5 rounded-full inline-flex">
+          <TabsList className="glass-panel border-[#0A84FF]/20 mb-6 p-1.5 rounded-full inline-flex">
             <TabsTrigger
               value="transactions"
-              className="rounded-full px-5 py-2 text-sm font-bold data-[state=active]:bg-indigo-600 data-[state=active]:text-white"
+              className="rounded-full px-5 py-2 text-sm font-bold data-[state=active]:bg-[#0B3FD1] data-[state=active]:text-white"
             >
               <History className="w-4 h-4 mr-2" /> Transactions ({agentTxs.length})
             </TabsTrigger>
             <TabsTrigger
               value="rules"
-              className="rounded-full px-5 py-2 text-sm font-bold data-[state=active]:bg-indigo-600 data-[state=active]:text-white"
+              className="rounded-full px-5 py-2 text-sm font-bold data-[state=active]:bg-[#0B3FD1] data-[state=active]:text-white"
             >
               <Settings className="w-4 h-4 mr-2" /> Rules ({agentRules.length})
             </TabsTrigger>
@@ -443,7 +443,7 @@ export default function AgentDetail() {
                   <p className="text-white/40">No transactions for this agent yet.</p>
                   <button
                     onClick={() => setSendOpen(true)}
-                    className="mt-3 text-indigo-400 hover:text-cyan-400 text-sm transition-colors"
+                    className="mt-3 text-[#3AB4FF] hover:text-[#22F0FF] text-sm transition-colors"
                   >
                     Fund this agent →
                   </button>
@@ -483,7 +483,7 @@ export default function AgentDetail() {
                             <div className="font-semibold text-white text-sm flex items-center gap-2">
                               To: {truncateAddress(tx.toAddress)}
                               To: {truncateAddress(tx.toAddress)}
-                              <a href={ARC_NETWORK.explorerUrl + "/tx/" + tx.hash} target="_blank" rel="noreferrer" className="text-white/30 hover:text-indigo-400 transition-colors">
+                              <a href={ARC_NETWORK.explorerUrl + "/tx/" + tx.hash} target="_blank" rel="noreferrer" className="text-white/30 hover:text-[#3AB4FF] transition-colors">
                                 <ExternalLink className="w-3.5 h-3.5" />
                               </a>
                             </div>
@@ -524,7 +524,7 @@ export default function AgentDetail() {
                   <Shield className="w-10 h-10 mx-auto mb-3 text-white/10" />
                   <p className="text-white/40 mb-2">No spending rules for this agent.</p>
                   <Link href="/rules">
-                    <button className="text-indigo-400 hover:text-cyan-400 text-sm transition-colors">
+                    <button className="text-[#3AB4FF] hover:text-[#22F0FF] text-sm transition-colors">
                       Create a rule →
                     </button>
                   </Link>
@@ -541,7 +541,7 @@ export default function AgentDetail() {
                           className={cn(
                             "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border",
                             rule.status === "active"
-                              ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20"
+                              ? "bg-[#05D8EA]/10 text-[#22F0FF] border-[#05D8EA]/20"
                               : "bg-white/[0.04] text-white/30 border-white/10"
                           )}
                         >
@@ -563,7 +563,7 @@ export default function AgentDetail() {
                             </Badge>
                           </div>
                           <div className="text-sm text-white/50">
-                            <span className="font-mono font-bold text-cyan-400">
+                            <span className="font-mono font-bold text-[#22F0FF]">
                               {formatUSDC(parseFloat(rule.amount))}
                             </span>
                             {rule.interval && <span> · {rule.interval}</span>}
