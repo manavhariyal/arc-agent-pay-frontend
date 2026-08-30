@@ -91,7 +91,7 @@ export default function Dashboard() {
           <div>
             <h1 className="text-3xl font-black tracking-tight text-white">
               Command Center
-              <span className="block w-10 h-0.5 bg-gradient-to-r from-indigo-500 to-cyan-500 mt-1.5 rounded-full" />
+              <span className="block w-10 h-0.5 bg-gradient-to-r from-[#0A84FF] to-[#05D8EA] mt-1.5 rounded-full" />
             </h1>
             <p className="text-white/40 mt-2 text-sm">Your AI agent payment network on Arc Testnet.</p>
           </div>
@@ -102,12 +102,12 @@ export default function Dashboard() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button
-                      className="flex items-center gap-3 px-4 py-2.5 rounded-xl glass-panel border border-indigo-500/20 hover:border-indigo-500/40 transition-all cursor-pointer"
+                      className="flex items-center gap-3 px-4 py-2.5 rounded-xl glass-panel border border-[#0A84FF]/20 hover:border-[#0A84FF]/40 transition-all cursor-pointer"
                     >
-                      <Wallet className="w-4 h-4 text-indigo-400" />
+                      <Wallet className="w-4 h-4 text-[#3AB4FF]" />
                       <span className="font-mono text-sm text-white">{truncateAddress(address!)}</span>
                       <div className="w-px h-4 bg-white/10" />
-                      <span className="font-bold text-cyan-400 font-mono text-sm">
+                      <span className="font-bold text-[#22F0FF] font-mono text-sm">
                         {isBalanceLoading ? "…" : isBalanceError || formattedBalance == null ? (
                           <span className="text-rose-400">retry</span>
                         ) : `${formattedBalance} USDC`}
@@ -142,13 +142,13 @@ export default function Dashboard() {
                 <Button
                   onClick={() => setDepositOpen(true)}
                   variant="outline"
-                  className="h-10 px-4 border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 hover:text-cyan-300 rounded-xl font-semibold transition-all"
+                  className="h-10 px-4 border-[#05D8EA]/30 bg-[#05D8EA]/10 hover:bg-[#05D8EA]/20 text-[#22F0FF] hover:text-[#9FF6FF] rounded-xl font-semibold transition-all"
                 >
                   <Zap className="w-4 h-4 mr-2" /> Deposit
                 </Button>
                 <Button
                   onClick={() => setSendOpen(true)}
-                  className="h-10 px-5 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700 text-white font-bold rounded-xl shadow-[0_0_16px_rgba(99,102,241,0.4)]"
+                  className="h-10 px-5 bg-gradient-to-r from-[#0B3FD1] to-[#049CAE] hover:from-[#072E9E] hover:to-[#037685] text-white font-bold rounded-xl shadow-[0_0_16px_rgba(10,132,255,0.4)]"
                 >
                   <Send className="w-4 h-4 mr-2" /> Send
                 </Button>
@@ -256,10 +256,10 @@ export default function Dashboard() {
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass-panel-elevated rounded-2xl p-8 flex flex-col sm:flex-row items-center gap-6 border border-indigo-500/20"
+            className="glass-panel-elevated rounded-2xl p-8 flex flex-col sm:flex-row items-center gap-6 border border-[#0A84FF]/20"
           >
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 border border-indigo-500/20 flex items-center justify-center shrink-0">
-              <Wallet className="w-8 h-8 text-indigo-400" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0A84FF]/20 to-[#05D8EA]/20 border border-[#0A84FF]/20 flex items-center justify-center shrink-0">
+              <Wallet className="w-8 h-8 text-[#3AB4FF]" />
             </div>
             <div className="flex-1 text-center sm:text-left">
               <h2 className="text-white font-bold text-xl mb-1">Connect your wallet to get started</h2>
@@ -273,8 +273,8 @@ export default function Dashboard() {
           <motion.div variants={item} whileHover={{ y: -2 }} transition={{ duration: 0.2 }}>
             <div className="glass-panel-elevated p-6 rounded-2xl h-full">
               <div className="flex items-center justify-between mb-5">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-indigo-500/5 border border-indigo-500/20 flex items-center justify-center">
-                  <Wallet className="w-5 h-5 text-indigo-400" />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0A84FF]/20 to-[#0A84FF]/5 border border-[#0A84FF]/20 flex items-center justify-center">
+                  <Wallet className="w-5 h-5 text-[#3AB4FF]" />
                 </div>
                 {isConnected && isOnArcTestnet && (
                   <span className="text-[10px] font-medium text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded-full">Live</span>
@@ -289,24 +289,24 @@ export default function Dashboard() {
                       Couldn't load balance · <span className="underline decoration-dotted">tap to retry</span>
                     </button>
                   ) :
-                  <span>{formattedBalance} <span className="text-sm font-medium text-indigo-300">USDC</span></span>
+                  <span>{formattedBalance} <span className="text-sm font-medium text-[#8FD6FF]">USDC</span></span>
                 ) : <span className="text-white/20 text-2xl">—</span>}
               </div>
-              <div className="mt-2 text-xs text-indigo-400/60">
+              <div className="mt-2 text-xs text-[#3AB4FF]/60">
                 {isConnected && isOnArcTestnet ? `Arc Testnet · Chain ${ARC_NETWORK.chainId}` : "Connect wallet"}
               </div>
             </div>
           </motion.div>
 
           <motion.div variants={item} whileHover={{ y: -2 }} transition={{ duration: 0.2 }}>
-            <div className="glass-panel-elevated p-6 rounded-2xl h-full border border-cyan-500/10">
+            <div className="glass-panel-elevated p-6 rounded-2xl h-full border border-[#05D8EA]/10">
               <div className="flex items-center justify-between mb-5">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 border border-cyan-500/20 flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-cyan-400" />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#05D8EA]/20 to-[#05D8EA]/5 border border-[#05D8EA]/20 flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-[#22F0FF]" />
                 </div>
                 <button
                   onClick={() => setDepositOpen(true)}
-                  className="text-[10px] font-medium text-cyan-400 bg-cyan-400/10 border border-cyan-400/20 px-2 py-0.5 rounded-full hover:bg-cyan-400/20 transition-colors"
+                  className="text-[10px] font-medium text-[#22F0FF] bg-[#22F0FF]/10 border border-[#22F0FF]/20 px-2 py-0.5 rounded-full hover:bg-[#22F0FF]/20 transition-colors"
                 >
                   + Deposit
                 </button>
@@ -314,12 +314,12 @@ export default function Dashboard() {
               <div className="text-xs text-white/40 uppercase tracking-wider font-medium mb-2">Auto-Pay Balance</div>
               <div className="text-3xl font-black leading-none">
                 {isConnected ? (
-                  <span className={userBalanceAmount < 10 ? "text-amber-400" : "text-cyan-400"}>
+                  <span className={userBalanceAmount < 10 ? "text-amber-400" : "text-[#22F0FF]"}>
                     {userBalanceAmount.toFixed(4)} <span className="text-sm font-medium">USDC</span>
                   </span>
                 ) : <span className="text-white/20">—</span>}
               </div>
-              <div className="mt-2 text-xs text-cyan-400/60">
+              <div className="mt-2 text-xs text-[#22F0FF]/60">
                 Spent: {userBalance ? parseFloat(userBalance.total_spent.toString()).toFixed(4) : '0'} USDC
               </div>
             </div>
@@ -328,8 +328,8 @@ export default function Dashboard() {
           <motion.div variants={item} whileHover={{ y: -2 }} transition={{ duration: 0.2 }}>
             <div className="glass-panel-elevated p-6 rounded-2xl h-full">
               <div className="flex items-center justify-between mb-5">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 border border-cyan-500/20 flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-cyan-400" />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#05D8EA]/20 to-[#05D8EA]/5 border border-[#05D8EA]/20 flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-[#22F0FF]" />
                 </div>
               </div>
               <div className="text-xs text-white/40 uppercase tracking-wider font-medium mb-2">Registered Agents</div>
@@ -338,7 +338,7 @@ export default function Dashboard() {
                   <span>{activeAgents.length} <span className="text-sm font-medium text-white/30">/ {agents.length} total</span></span>
                 ) : <span className="text-white/20">0</span>}
               </div>
-              <div className="mt-2 text-xs text-cyan-400/60">
+              <div className="mt-2 text-xs text-[#22F0FF]/60">
                 {agents.length === 0 ? "Add your first agent" : `${activeAgents.length} active`}
               </div>
             </div>
@@ -364,7 +364,7 @@ export default function Dashboard() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-semibold text-white">Your Agents</h2>
-              <Link href="/agents" className="text-xs text-indigo-400 hover:text-cyan-400 transition-colors flex items-center gap-1">
+              <Link href="/agents" className="text-xs text-[#3AB4FF] hover:text-[#22F0FF] transition-colors flex items-center gap-1">
                 Manage <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -376,7 +376,7 @@ export default function Dashboard() {
                   </div>
                   <p className="text-white/30 text-sm">No agents registered yet.</p>
                   <Link href="/agents">
-                    <button className="mt-3 text-indigo-400 hover:text-cyan-400 text-xs transition-colors">Add your first agent →</button>
+                    <button className="mt-3 text-[#3AB4FF] hover:text-[#22F0FF] text-xs transition-colors">Add your first agent →</button>
                   </Link>
                 </div>
               ) : (
@@ -408,7 +408,7 @@ export default function Dashboard() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-semibold text-white">Recent Transactions</h2>
-              <Link href="/activity" className="text-xs text-indigo-400 hover:text-cyan-400 transition-colors flex items-center gap-1">
+              <Link href="/activity" className="text-xs text-[#3AB4FF] hover:text-[#22F0FF] transition-colors flex items-center gap-1">
                 View All <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -420,7 +420,7 @@ export default function Dashboard() {
                   </div>
                   <p className="text-white/30 text-sm">No transactions yet.</p>
                   {isConnected && isOnArcTestnet && (
-                    <button onClick={() => setSendOpen(true)} className="mt-3 text-indigo-400 hover:text-cyan-400 text-xs transition-colors">
+                    <button onClick={() => setSendOpen(true)} className="mt-3 text-[#3AB4FF] hover:text-[#22F0FF] text-xs transition-colors">
                       Send your first payment →
                     </button>
                   )}
@@ -436,7 +436,7 @@ export default function Dashboard() {
                           <div className="text-[11px] text-white/35 font-mono mt-0.5 flex items-center gap-1">
                             To: {truncateAddress(tx.to_address)}
                             {tx.tx_hash && (
-                              <a href={`${ARC_NETWORK.explorerUrl}/tx/${tx.tx_hash}`} target="_blank" rel="noreferrer" className="text-indigo-400/50 hover:text-indigo-400 ml-1">
+                              <a href={`${ARC_NETWORK.explorerUrl}/tx/${tx.tx_hash}`} target="_blank" rel="noreferrer" className="text-[#3AB4FF]/50 hover:text-[#3AB4FF] ml-1">
                                 <ExternalLink className="w-2.5 h-2.5" />
                               </a>
                             )}
