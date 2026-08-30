@@ -134,11 +134,11 @@ export default function X402Demo() {
       <div className="space-y-8 max-w-3xl mx-auto">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-4"
-            style={{ background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.25)", color: "rgba(165,180,252,0.9)" }}>
+            style={{ background: "rgba(10,132,255,0.1)", border: "1px solid rgba(10,132,255,0.25)", color: "rgba(165,180,252,0.9)" }}>
             <Zap className="w-3 h-3" /> x402 · Live on Arc Testnet
           </div>
           <h1 className="text-4xl font-black tracking-tight text-white mb-2">Autonomous Micropayments</h1>
-          <div className="h-1 w-16 bg-indigo-500 rounded-full mb-4"></div>
+          <div className="h-1 w-16 bg-[#0A84FF] rounded-full mb-4"></div>
           <p className="text-white/40 text-sm leading-relaxed max-w-xl">
             This is a real, live paywalled API endpoint. Click below and a dedicated agent wallet will
             automatically discover the paywall, pay $0.001 USDC through Circle's Gateway, and fetch the
@@ -154,7 +154,7 @@ export default function X402Demo() {
             {balanceLoading ? (
               <span className="text-white/20">…</span>
             ) : balance ? (
-              <span className={showLowBalanceWarning ? "text-amber-400 font-mono font-bold" : "text-cyan-400 font-mono font-bold"}>
+              <span className={showLowBalanceWarning ? "text-amber-400 font-mono font-bold" : "text-[#22F0FF] font-mono font-bold"}>
                 {balance.gatewayAvailable} USDC
               </span>
             ) : (
@@ -184,8 +184,8 @@ export default function X402Demo() {
         <div className="glass-panel-elevated rounded-2xl p-6">
           <div className="flex items-center justify-between gap-2 text-center">
             <div className="flex-1">
-              <div className="w-11 h-11 mx-auto mb-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-                <Lock className="w-5 h-5 text-indigo-400" />
+              <div className="w-11 h-11 mx-auto mb-2 rounded-xl bg-[#0A84FF]/10 border border-[#0A84FF]/20 flex items-center justify-center">
+                <Lock className="w-5 h-5 text-[#3AB4FF]" />
               </div>
               <div className="text-xs text-white/50 font-medium">Agent requests<br />gold price data</div>
             </div>
@@ -198,8 +198,8 @@ export default function X402Demo() {
             </div>
             <ArrowRight className="w-4 h-4 text-white/15 shrink-0" />
             <div className="flex-1">
-              <div className="w-11 h-11 mx-auto mb-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                <Zap className="w-5 h-5 text-cyan-400" />
+              <div className="w-11 h-11 mx-auto mb-2 rounded-xl bg-[#05D8EA]/10 border border-[#05D8EA]/20 flex items-center justify-center">
+                <Zap className="w-5 h-5 text-[#22F0FF]" />
               </div>
               <div className="text-xs text-white/50 font-medium">Agent auto-pays<br />via Circle Gateway</div>
             </div>
@@ -218,7 +218,7 @@ export default function X402Demo() {
           <Button
             onClick={runDemo}
             disabled={state === "loading"}
-            className="h-12 px-8 rounded-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700 text-white font-semibold shadow-[0_0_20px_rgba(99,102,241,0.3)] disabled:opacity-60"
+            className="h-12 px-8 rounded-full bg-gradient-to-r from-[#0B3FD1] to-[#049CAE] hover:from-[#072E9E] hover:to-[#037685] text-white font-semibold shadow-[0_0_20px_rgba(10,132,255,0.3)] disabled:opacity-60"
           >
             {state === "loading" ? (
               <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Paying & fetching…</>
@@ -258,7 +258,7 @@ export default function X402Demo() {
                   </div>
                   <div>
                     <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Amount Paid</div>
-                    <div className="text-cyan-400 font-mono font-bold">{result.formattedAmount} USDC</div>
+                    <div className="text-[#22F0FF] font-mono font-bold">{result.formattedAmount} USDC</div>
                   </div>
                   <div>
                     <div className="text-white/30 text-xs uppercase tracking-wider mb-1">Buyer Wallet</div>
@@ -277,7 +277,7 @@ export default function X402Demo() {
                       href={settlement.explorerUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 text-xs font-mono transition-colors"
+                      className="inline-flex items-center gap-1.5 text-[#22F0FF] hover:text-[#9FF6FF] text-xs font-mono transition-colors"
                     >
                       View settlement on ArcScan <ExternalLink className="w-3 h-3" />
                     </a>
@@ -290,7 +290,7 @@ export default function X402Demo() {
                       <div className="text-white/20 text-xs">Not yet settled — Gateway batches payments periodically, this can take a few minutes.</div>
                       <button
                         onClick={() => pollSettlement(result.transferId)}
-                        className="text-xs text-indigo-400 hover:text-indigo-300 underline decoration-dotted"
+                        className="text-xs text-[#3AB4FF] hover:text-[#8FD6FF] underline decoration-dotted"
                       >
                         Check again
                       </button>
