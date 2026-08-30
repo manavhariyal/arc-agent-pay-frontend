@@ -75,10 +75,10 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[440px] glass-panel-elevated border-cyan-500/20">
+      <DialogContent className="sm:max-w-[440px] glass-panel-elevated border-[#05D8EA]/20">
         <DialogHeader>
           <DialogTitle className="text-white text-xl font-bold flex items-center gap-2">
-            <Zap className="w-5 h-5 text-cyan-400" />
+            <Zap className="w-5 h-5 text-[#22F0FF]" />
             Fund Auto-Payments
           </DialogTitle>
           <DialogDescription className="text-white/40">
@@ -88,9 +88,9 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
 
         {step === 'input' && (
           <div className="space-y-5 py-2">
-            <div className="glass-panel rounded-xl p-4 border border-cyan-500/20">
+            <div className="glass-panel rounded-xl p-4 border border-[#05D8EA]/20">
               <div className="text-xs text-white/40 mb-1">Your Current Balance</div>
-              <div className="text-2xl font-black text-cyan-400">
+              <div className="text-2xl font-black text-[#22F0FF]">
                 {userBalance ? parseFloat(userBalance.balance.toString()).toFixed(4) + ' USDC' : '0.0000 USDC'}
               </div>
               <div className="text-xs text-white/30 mt-1">
@@ -103,7 +103,7 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
               <Label className="text-white/50 text-xs font-semibold uppercase tracking-wider">Treasury Wallet</Label>
               <div className="flex items-center gap-2 glass-panel rounded-xl p-3 border border-white/10">
                 <span className="font-mono text-xs text-white/60 flex-1 truncate">{TREASURY_ADDRESS}</span>
-                <button onClick={copyAddress} className="text-white/30 hover:text-cyan-400 transition-colors shrink-0">
+                <button onClick={copyAddress} className="text-white/30 hover:text-[#22F0FF] transition-colors shrink-0">
                   <Copy className="w-4 h-4" />
                 </button>
               </div>
@@ -118,14 +118,14 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
                 placeholder="0.00"
                 min="0"
                 step="0.1"
-                className="glass-panel border-cyan-500/20 text-white h-11 rounded-xl focus-visible:ring-cyan-500/40 text-lg font-bold"
+                className="glass-panel border-[#05D8EA]/20 text-white h-11 rounded-xl focus-visible:ring-[#05D8EA]/40 text-lg font-bold"
               />
               <div className="flex gap-2">
                 {['10', '24', '50', '100'].map(q => (
                   <button
                     key={q}
                     onClick={() => setAmount(q)}
-                    className="flex-1 text-xs py-1.5 rounded-lg glass-panel border border-white/10 text-white/50 hover:text-cyan-400 hover:border-cyan-500/30 transition-all"
+                    className="flex-1 text-xs py-1.5 rounded-lg glass-panel border border-white/10 text-white/50 hover:text-[#22F0FF] hover:border-[#05D8EA]/30 transition-all"
                   >
                     {q}
                   </button>
@@ -141,7 +141,7 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
             <Button
               onClick={handleDeposit}
               disabled={!amount || parseFloat(amount) <= 0 || !isConnected}
-              className="w-full h-11 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white rounded-xl font-bold disabled:opacity-40"
+              className="w-full h-11 bg-gradient-to-r from-[#049CAE] to-[#0B3FD1] text-white rounded-xl font-bold disabled:opacity-40"
             >
               <Zap className="w-4 h-4 mr-2" />
               {'Deposit ' + (amount ? amount + ' USDC' : 'USDC')}
@@ -151,8 +151,8 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
 
         {step === 'sending' && (
           <div className="py-8 text-center space-y-4">
-            <div className="w-16 h-16 mx-auto rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-              <Zap className="w-8 h-8 text-cyan-400 animate-pulse" />
+            <div className="w-16 h-16 mx-auto rounded-full bg-[#05D8EA]/10 border border-[#05D8EA]/20 flex items-center justify-center">
+              <Zap className="w-8 h-8 text-[#22F0FF] animate-pulse" />
             </div>
             <div>
               <p className="text-white font-bold text-lg">Sending Transaction...</p>
@@ -173,12 +173,12 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
             {txHash && (
   <button
     onClick={() => window.open(explorerUrl, '_blank')}
-    className="inline-flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300"
+    className="inline-flex items-center gap-1 text-xs text-[#3AB4FF] hover:text-[#8FD6FF]"
   >
     View on Arcscan <ExternalLink className="w-3 h-3" />
   </button>
 )}
-            <Button onClick={handleClose} className="w-full h-11 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white rounded-xl font-bold">
+            <Button onClick={handleClose} className="w-full h-11 bg-gradient-to-r from-emerald-600 to-[#049CAE] text-white rounded-xl font-bold">
               Done
             </Button>
           </div>
