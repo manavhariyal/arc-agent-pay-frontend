@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowRight, Zap, Shield, Globe, Send, BarChart3, Users, ChevronRight } from "lucide-react";
+import { ArrowRight, Zap, Shield, Globe, Send, BarChart3, Users, ChevronRight, Bot, Wallet, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CreatorCard } from "@/components/creator/CreatorCard";
 
@@ -87,40 +87,38 @@ export default function Landing() {
           />
 
           {/* Real architecture flow: agent -> DCW wallet -> onchain settlement */}
-          <div className="flex items-center gap-3 sm:gap-5 px-4">
+          <div className="flex items-center justify-center gap-2 sm:gap-4 px-4">
             {[
-              { label: "AI Agent", sub: "signs intent" },
-              { label: "Circle DCW", sub: "wallet policy" },
-              { label: "Arc Settlement", sub: "USDC · ArcScan" },
+              { label: "AI Agent", sub: "signs intent", Icon: Bot, color: "#22F0FF", glow: "rgba(34,240,255,0.35)" },
+              { label: "Circle DCW", sub: "wallet policy", Icon: Wallet, color: "#3AB4FF", glow: "rgba(58,180,255,0.35)" },
+              { label: "Arc Settlement", sub: "USDC · ArcScan", Icon: CheckCircle2, color: "#34d399", glow: "rgba(52,211,153,0.35)" },
             ].map((step, i) => (
-              <div key={step.label} className="flex items-center gap-3 sm:gap-5">
-                <div className="flex flex-col items-center gap-2">
+              <div key={step.label} className="flex items-center gap-2 sm:gap-4">
+                <div className="flex flex-col items-center gap-2.5">
                   <div
-                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center relative"
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center relative glass-panel-elevated"
                     style={{
-                      background: "rgba(12,14,22,0.9)",
-                      border: "1px solid rgba(10,132,255,0.25)",
-                      boxShadow: "0 0 20px rgba(10,132,255,0.15)",
+                      boxShadow: `0 0 24px ${step.glow}, 0 1px 0 rgba(255,255,255,0.05) inset, 0 8px 32px rgba(0,0,0,0.6)`,
                     }}
                   >
+                    <step.Icon className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: step.color }} strokeWidth={1.75} />
                     <span
-                      className="w-2 h-2 rounded-full absolute"
-                      style={{ background: "#22F0FF", boxShadow: "0 0 8px #22F0FF" }}
+                      className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2"
+                      style={{ background: step.color, borderColor: "rgba(9,11,18,0.9)", boxShadow: `0 0 8px ${step.color}` }}
                     />
-                    <span className="text-[10px] font-mono text-white/50">{i + 1}</span>
                   </div>
                   <div className="text-center">
-                    <div className="text-xs font-semibold text-white/80 whitespace-nowrap">{step.label}</div>
-                    <div className="text-[10px] text-white/30 font-mono whitespace-nowrap">{step.sub}</div>
+                    <div className="text-xs font-semibold text-white/85 whitespace-nowrap">{step.label}</div>
+                    <div className="text-[10px] text-white/35 font-mono whitespace-nowrap mt-0.5">{step.sub}</div>
                   </div>
                 </div>
                 {i < 2 && (
-                  <div className="relative w-8 sm:w-12 h-px mt-[-20px]" style={{ background: "linear-gradient(90deg, rgba(10,132,255,0.5), rgba(34,240,255,0.5))" }}>
+                  <div className="relative w-6 sm:w-10 h-px mb-6" style={{ background: "rgba(255,255,255,0.15)" }}>
                     <motion.span
-                      className="absolute -top-[3px] w-[7px] h-[7px] rounded-full"
-                      style={{ background: "#3AB4FF", boxShadow: "0 0 8px #3AB4FF" }}
-                      animate={{ left: ["0%", "100%"] }}
-                      transition={{ duration: 1.6, repeat: Infinity, ease: "linear", delay: i * 0.5 }}
+                      className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full"
+                      style={{ background: step.color, boxShadow: `0 0 6px ${step.color}` }}
+                      animate={{ left: ["0%", "100%"], opacity: [0, 1, 1, 0] }}
+                      transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut", delay: i * 0.4 }}
                     />
                   </div>
                 )}
