@@ -80,36 +80,36 @@
   --popover-foreground: 210 40% 96%;
   --popover-border: 243 75% 59% / 0.12;
   
-  --primary: 243 75% 62%;
+  --primary: 210 100% 52%;
   --primary-foreground: 210 40% 98%;
   
-  --secondary: 195 100% 50%;
+  --secondary: 184 100% 57%;
   --secondary-foreground: 220 20% 5%;
   
   --muted: 220 18% 11%;
   --muted-foreground: 215 16% 48%;
   
-  --accent: 243 75% 62%;
+  --accent: 210 100% 52%;
   --accent-foreground: 210 40% 98%;
   
   --destructive: 346 87% 60%;
   --destructive-foreground: 210 40% 98%;
   
-  --border: 243 30% 59% / 0.1;
+  --border: 210 60% 55% / 0.1;
   --input: 220 18% 10%;
-  --ring: 195 100% 50%;
+  --ring: 184 100% 57%;
   
   --sidebar: 220 20% 5%;
   --sidebar-foreground: 210 40% 96%;
-  --sidebar-border: 243 30% 59% / 0.08;
-  --sidebar-primary: 243 75% 62%;
+  --sidebar-border: 210 40% 55% / 0.08;
+  --sidebar-primary: 210 100% 52%;
   --sidebar-primary-foreground: 210 40% 98%;
   --sidebar-accent: 220 18% 9%;
   --sidebar-accent-foreground: 210 40% 96%;
-  --sidebar-ring: 195 100% 50%;
+  --sidebar-ring: 184 100% 57%;
   
-  --chart-1: 243 75% 62%;
-  --chart-2: 195 100% 50%;
+  --chart-1: 210 100% 52%;
+  --chart-2: 184 100% 57%;
   --chart-3: 152 76% 40%;
   --chart-4: 346 87% 60%;
   --chart-5: 45 90% 55%;
@@ -204,12 +204,12 @@
 .accent-bar {
   height: 2px;
   width: 2rem;
-  background: linear-gradient(90deg, #6366f1, #06b6d4);
+  background: linear-gradient(90deg, #0A84FF, #22F0FF);
   border-radius: 9999px;
 }
 
 /* Sidebar active indicator */
 .sidebar-active {
   background: rgba(99, 102, 241, 0.08);
-  border-left: 2px solid #6366f1;
+  border-left: 2px solid #0A84FF;
 }
