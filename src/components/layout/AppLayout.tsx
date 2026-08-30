@@ -16,9 +16,9 @@ export function AppLayout({ children }: { children: ReactNode }) {
       {/* Subtle ambient glows — very restrained */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-0 left-64 w-[600px] h-[400px] opacity-20"
-          style={{ background: "radial-gradient(ellipse, rgba(99,102,241,0.15) 0%, transparent 70%)" }} />
+          style={{ background: "radial-gradient(ellipse, rgba(10,132,255,0.15) 0%, transparent 70%)" }} />
         <div className="absolute bottom-0 right-0 w-[500px] h-[400px] opacity-15"
-          style={{ background: "radial-gradient(ellipse, rgba(6,182,212,0.12) 0%, transparent 70%)" }} />
+          style={{ background: "radial-gradient(ellipse, rgba(34,240,255,0.12) 0%, transparent 70%)" }} />
       </div>
 
       <Sidebar />
@@ -43,7 +43,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
           src="/arc-logo.png"
           alt="Arc Agent Pay"
           className="h-6 w-auto object-contain"
-          style={{ filter: 'brightness(4) drop-shadow(0 0 8px rgba(99,102,241,0.5))' }}
+          style={{ filter: 'brightness(4) drop-shadow(0 0 8px rgba(10,132,255,0.5))' }}
         />
       </div>
 
