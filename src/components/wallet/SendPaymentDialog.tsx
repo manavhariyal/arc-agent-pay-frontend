@@ -98,7 +98,7 @@ export function SendPaymentDialog({ open, onClose, prefilledAddress, prefilledAg
   if (!isConnected) {
     return (
       <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent className="glass-panel-elevated border-indigo-500/20 max-w-md">
+        <DialogContent className="glass-panel-elevated border-[#0A84FF]/20 max-w-md">
           <DialogHeader>
             <DialogTitle className="text-white text-xl font-bold">Send USDC</DialogTitle>
           </DialogHeader>
@@ -114,7 +114,7 @@ export function SendPaymentDialog({ open, onClose, prefilledAddress, prefilledAg
   if (!isOnArcTestnet) {
     return (
       <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent className="glass-panel-elevated border-indigo-500/20 max-w-md">
+        <DialogContent className="glass-panel-elevated border-[#0A84FF]/20 max-w-md">
           <DialogHeader>
             <DialogTitle className="text-white text-xl font-bold">Send USDC</DialogTitle>
           </DialogHeader>
@@ -129,10 +129,10 @@ export function SendPaymentDialog({ open, onClose, prefilledAddress, prefilledAg
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="glass-panel-elevated border-indigo-500/20 max-w-md">
+      <DialogContent className="glass-panel-elevated border-[#0A84FF]/20 max-w-md">
         <DialogHeader>
           <DialogTitle className="text-white text-xl font-bold flex items-center gap-2">
-            <Send className="w-5 h-5 text-indigo-400" /> Send USDC
+            <Send className="w-5 h-5 text-[#3AB4FF]" /> Send USDC
           </DialogTitle>
         </DialogHeader>
 
@@ -149,11 +149,11 @@ export function SendPaymentDialog({ open, onClose, prefilledAddress, prefilledAg
               href={`${ARC_NETWORK.explorerUrl}/tx/${savedHash}`}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-2 text-indigo-400 hover:text-cyan-400 transition-colors text-sm font-semibold"
+              className="flex items-center gap-2 text-[#3AB4FF] hover:text-[#22F0FF] transition-colors text-sm font-semibold"
             >
               View on ArcScan <ExternalLink className="w-4 h-4" />
             </a>
-            <Button onClick={handleClose} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11">
+            <Button onClick={handleClose} className="w-full bg-[#0B3FD1] hover:bg-[#072E9E] text-white rounded-xl h-11">
               Done
             </Button>
           </div>
@@ -161,7 +161,7 @@ export function SendPaymentDialog({ open, onClose, prefilledAddress, prefilledAg
           <div className="space-y-5 py-2">
             <div className="flex items-center justify-between text-xs text-white/40 bg-white/[0.03] rounded-xl px-4 py-2.5 border border-white/[0.06]">
               <span>Your balance</span>
-              <span className="font-mono font-bold text-cyan-400">{formattedBalance ?? '—'} USDC</span>
+              <span className="font-mono font-bold text-[#22F0FF]">{formattedBalance ?? '—'} USDC</span>
             </div>
 
             {agents.length > 0 && (
@@ -170,10 +170,10 @@ export function SendPaymentDialog({ open, onClose, prefilledAddress, prefilledAg
                   Quick-select Agent (optional)
                 </Label>
                 <Select value={selectedAgentId} onValueChange={setSelectedAgentId}>
-                  <SelectTrigger className="glass-panel border-indigo-500/20 text-white h-11 rounded-xl">
+                  <SelectTrigger className="glass-panel border-[#0A84FF]/20 text-white h-11 rounded-xl">
                     <SelectValue placeholder="Select an agent address…" />
                   </SelectTrigger>
-                  <SelectContent className="glass-panel-elevated border-indigo-500/20 rounded-xl">
+                  <SelectContent className="glass-panel-elevated border-[#0A84FF]/20 rounded-xl">
                     <SelectItem value="none" className="text-white/50 rounded-lg">No agent</SelectItem>
                     {agents.map(a => (
                       <SelectItem key={a.id} value={a.id} className="text-white rounded-lg">
@@ -194,7 +194,7 @@ export function SendPaymentDialog({ open, onClose, prefilledAddress, prefilledAg
                 onChange={e => setRecipient(e.target.value)}
                 placeholder="0x…"
                 className={cn(
-                  "glass-panel border-indigo-500/20 text-white font-mono h-11 rounded-xl focus-visible:ring-indigo-500/40",
+                  "glass-panel border-[#0A84FF]/20 text-white font-mono h-11 rounded-xl focus-visible:ring-[#0A84FF]/40",
                   recipient && !isValidAddress && "border-rose-500/40 focus-visible:ring-rose-500/30"
                 )}
               />
@@ -214,7 +214,7 @@ export function SendPaymentDialog({ open, onClose, prefilledAddress, prefilledAg
                 type="number"
                 min="0"
                 step="0.001"
-                className="glass-panel border-indigo-500/20 text-white h-11 rounded-xl focus-visible:ring-indigo-500/40"
+                className="glass-panel border-[#0A84FF]/20 text-white h-11 rounded-xl focus-visible:ring-[#0A84FF]/40"
               />
             </div>
 
@@ -226,7 +226,7 @@ export function SendPaymentDialog({ open, onClose, prefilledAddress, prefilledAg
                 value={note}
                 onChange={e => setNote(e.target.value)}
                 placeholder="What's this for?"
-                className="glass-panel border-indigo-500/20 text-white h-11 rounded-xl focus-visible:ring-indigo-500/40"
+                className="glass-panel border-[#0A84FF]/20 text-white h-11 rounded-xl focus-visible:ring-[#0A84FF]/40"
               />
             </div>
 
@@ -238,8 +238,8 @@ export function SendPaymentDialog({ open, onClose, prefilledAddress, prefilledAg
             )}
 
             {(isPending || isConfirming) && (
-              <div className="flex items-center gap-3 text-sm text-white/60 bg-indigo-500/5 border border-indigo-500/20 rounded-xl px-4 py-3">
-                <Loader2 className="w-4 h-4 animate-spin text-indigo-400 shrink-0" />
+              <div className="flex items-center gap-3 text-sm text-white/60 bg-[#0A84FF]/5 border border-[#0A84FF]/20 rounded-xl px-4 py-3">
+                <Loader2 className="w-4 h-4 animate-spin text-[#3AB4FF] shrink-0" />
                 <span>
                   {isPending ? 'Waiting for MetaMask confirmation…' : 'Broadcasting transaction…'}
                 </span>
@@ -249,7 +249,7 @@ export function SendPaymentDialog({ open, onClose, prefilledAddress, prefilledAg
             <Button
               onClick={handleSend}
               disabled={!canSend}
-              className="w-full h-12 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(99,102,241,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-12 bg-gradient-to-r from-[#0B3FD1] to-[#049CAE] hover:from-[#072E9E] hover:to-[#037685] text-white font-bold rounded-xl shadow-[0_0_20px_rgba(10,132,255,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isPending || isConfirming ? (
                 <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Sending…</span>
