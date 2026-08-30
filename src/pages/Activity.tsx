@@ -108,7 +108,7 @@ export default function ActivityFeed() {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-4xl font-black tracking-tight text-white mb-2">Transaction Feed</h1>
-            <div className="h-1 w-16 bg-indigo-500 rounded-full mb-3"></div>
+            <div className="h-1 w-16 bg-[#0A84FF] rounded-full mb-3"></div>
             <p className="text-white/40 text-sm">All on-chain USDC payments sent through Arc Agent Pay.</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -124,7 +124,7 @@ export default function ActivityFeed() {
               <Button
                 onClick={() => setSendOpen(true)}
                 size="sm"
-                className="rounded-full bg-gradient-to-r from-indigo-600 to-cyan-600 text-white h-9 px-5 text-sm font-semibold"
+                className="rounded-full bg-gradient-to-r from-[#0B3FD1] to-[#049CAE] text-white h-9 px-5 text-sm font-semibold"
               >
                 <Send className="w-3.5 h-3.5 mr-2" /> Send
               </Button>
@@ -134,8 +134,8 @@ export default function ActivityFeed() {
 
         {!isConnected ? (
           <div className="glass-panel-elevated rounded-2xl p-12 text-center">
-            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-              <Wallet className="w-7 h-7 text-indigo-400/50" />
+            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[#0A84FF]/10 border border-[#0A84FF]/20 flex items-center justify-center">
+              <Wallet className="w-7 h-7 text-[#3AB4FF]/50" />
             </div>
             <h2 className="text-white font-bold text-xl mb-2">Connect your wallet</h2>
             <p className="text-white/40 text-sm mb-6">Link MetaMask to view your transaction history.</p>
@@ -157,7 +157,7 @@ export default function ActivityFeed() {
                     className={cn(
                       "flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all",
                       statusFilter === s.filter
-                        ? "bg-indigo-500/20 border border-indigo-500/40 text-indigo-300"
+                        ? "bg-[#0A84FF]/20 border border-[#0A84FF]/40 text-[#8FD6FF]"
                         : "glass-panel text-white/40 hover:text-white/70 border border-white/[0.06]"
                     )}
                   >
@@ -173,7 +173,7 @@ export default function ActivityFeed() {
                     placeholder="Search hash, address…"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9 glass-panel border-white/[0.08] text-white text-sm h-9 rounded-full w-60 focus-visible:ring-indigo-500/40"
+                    className="pl-9 glass-panel border-white/[0.08] text-white text-sm h-9 rounded-full w-60 focus-visible:ring-[#0A84FF]/40"
                   />
                 </div>
               </div>
@@ -181,20 +181,20 @@ export default function ActivityFeed() {
 
             {totalCount === 0 ? (
               <div className="glass-panel-elevated rounded-2xl p-12 text-center">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-                  <Send className="w-7 h-7 text-indigo-400/50" />
+                <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[#0A84FF]/10 border border-[#0A84FF]/20 flex items-center justify-center">
+                  <Send className="w-7 h-7 text-[#3AB4FF]/50" />
                 </div>
                 <h2 className="text-white font-bold text-xl mb-2">No transactions yet</h2>
                 <p className="text-white/40 text-sm mb-6">Send your first USDC payment on Arc Testnet and it will appear here.</p>
                 {isOnArcTestnet && (
-                  <Button onClick={() => setSendOpen(true)} className="bg-gradient-to-r from-indigo-600 to-cyan-600 text-white rounded-xl px-8 h-11">
+                  <Button onClick={() => setSendOpen(true)} className="bg-gradient-to-r from-[#0B3FD1] to-[#049CAE] text-white rounded-xl px-8 h-11">
                     <Send className="w-4 h-4 mr-2" /> Send First Payment
                   </Button>
                 )}
               </div>
             ) : (
               <div className="relative pl-8 sm:pl-12">
-                <div className="absolute left-[15px] sm:left-[23px] top-0 bottom-0 w-px bg-indigo-500/20" />
+                <div className="absolute left-[15px] sm:left-[23px] top-0 bottom-0 w-px bg-[#0A84FF]/20" />
                 <motion.div variants={container} initial="hidden" animate="show" className="space-y-5">
 
                   {filteredBackend.map((tx) => (
@@ -204,7 +204,7 @@ export default function ActivityFeed() {
                         tx.status === "success" ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)]" :
                         tx.status === "pending" ? "bg-amber-500 animate-pulse" : "bg-rose-500"
                       )} />
-                      <div className="glass-panel-elevated p-5 rounded-2xl hover:border-indigo-500/20 transition-all">
+                      <div className="glass-panel-elevated p-5 rounded-2xl hover:border-[#0A84FF]/20 transition-all">
                         <div className="flex flex-col sm:flex-row justify-between gap-4">
                           <div className="flex items-start gap-4">
                             <div className={cn(
@@ -219,8 +219,8 @@ export default function ActivityFeed() {
                             </div>
                             <div>
                               <div className="font-bold text-white text-base mb-1">
-                                <span className="text-cyan-300">{tx.agents?.name || "Auto Payment"}</span>
-                                <Badge variant="outline" className="ml-2 text-[9px] text-cyan-400 border-cyan-400/20 bg-cyan-400/10">SCHEDULED</Badge>
+                                <span className="text-[#9FF6FF]">{tx.agents?.name || "Auto Payment"}</span>
+                                <Badge variant="outline" className="ml-2 text-[9px] text-[#22F0FF] border-[#22F0FF]/20 bg-[#22F0FF]/10">SCHEDULED</Badge>
                               </div>
                               <div className="text-xs text-white/40 mb-1 font-mono">
                                 To: {truncateAddress(tx.to_address)}
@@ -229,7 +229,7 @@ export default function ActivityFeed() {
                                 {new Date(tx.created_at).toLocaleString()}
                                 {tx.tx_hash && (
                                   <a href={`${ARC_NETWORK.explorerUrl}/tx/${tx.tx_hash}`} target="_blank" rel="noreferrer"
-                                    className="text-indigo-400/70 hover:text-indigo-400 transition-colors font-semibold flex items-center gap-1">
+                                    className="text-[#3AB4FF]/70 hover:text-[#3AB4FF] transition-colors font-semibold flex items-center gap-1">
                                     ArcScan <ExternalLink className="w-2.5 h-2.5" />
                                   </a>
                                 )}
@@ -260,7 +260,7 @@ export default function ActivityFeed() {
                           tx.status === "confirmed" ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)]" :
                           tx.status === "pending" ? "bg-amber-500 animate-pulse" : "bg-rose-500"
                         )} />
-                        <div className="glass-panel-elevated p-5 rounded-2xl hover:border-indigo-500/20 transition-all">
+                        <div className="glass-panel-elevated p-5 rounded-2xl hover:border-[#0A84FF]/20 transition-all">
                           <div className="flex flex-col sm:flex-row justify-between gap-4">
                             <div className="flex items-start gap-4">
                               <div className={cn(
@@ -275,13 +275,13 @@ export default function ActivityFeed() {
                               </div>
                               <div>
                                 <div className="font-bold text-white text-base mb-1">
-                                  {tx.agentName ? <span className="text-indigo-300">{tx.agentName}</span> : <span className="text-white/70">Direct Payment</span>}
+                                  {tx.agentName ? <span className="text-[#8FD6FF]">{tx.agentName}</span> : <span className="text-white/70">Direct Payment</span>}
                                 </div>
                                 <div className="text-xs text-white/40 mb-1 font-mono">To: {truncateAddress(tx.toAddress)}</div>
                                 <div className="text-[11px] text-white/25 flex items-center gap-2">
                                   {new Date(tx.timestamp).toLocaleString()}
                                   <a href={`${ARC_NETWORK.explorerUrl}/tx/${tx.hash}`} target="_blank" rel="noreferrer"
-                                    className="text-indigo-400/70 hover:text-indigo-400 transition-colors font-semibold flex items-center gap-1">
+                                    className="text-[#3AB4FF]/70 hover:text-[#3AB4FF] transition-colors font-semibold flex items-center gap-1">
                                     ArcScan <ExternalLink className="w-2.5 h-2.5" />
                                   </a>
                                 </div>
