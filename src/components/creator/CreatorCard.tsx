@@ -39,11 +39,11 @@ function DiscordCopy({ small = false }: { small?: boolean }) {
       title="Click to copy Discord username"
       className={
         small
-          ? "flex items-center gap-1 text-white/30 hover:text-indigo-300 transition-colors group/dc cursor-pointer"
-          : "flex items-center gap-1 text-white/30 hover:text-indigo-300 transition-colors group/dc cursor-pointer"
+          ? "flex items-center gap-1 text-white/30 hover:text-[#8FD6FF] transition-colors group/dc cursor-pointer"
+          : "flex items-center gap-1 text-white/30 hover:text-[#8FD6FF] transition-colors group/dc cursor-pointer"
       }
     >
-      <DiscordIcon className={small ? "w-2.5 h-2.5 text-indigo-400/50 group-hover/dc:text-indigo-400 transition-colors" : "w-2.5 h-2.5 text-indigo-400/50 group-hover/dc:text-indigo-400 transition-colors"} />
+      <DiscordIcon className={small ? "w-2.5 h-2.5 text-[#3AB4FF]/50 group-hover/dc:text-[#3AB4FF] transition-colors" : "w-2.5 h-2.5 text-[#3AB4FF]/50 group-hover/dc:text-[#3AB4FF] transition-colors"} />
       <AnimatePresence mode="wait" initial={false}>
         {copied ? (
           <motion.span
@@ -80,7 +80,7 @@ interface CreatorCardProps {
 export function CreatorCard({ variant = "full" }: CreatorCardProps) {
   if (variant === "compact") {
     return (
-      <div className="flex items-center gap-3 px-4 py-3 rounded-2xl glass-panel border border-indigo-500/15 hover:border-indigo-500/30 transition-all duration-300">
+      <div className="flex items-center gap-3 px-4 py-3 rounded-2xl glass-panel border border-[#0A84FF]/15 hover:border-[#0A84FF]/30 transition-all duration-300">
         <motion.a
           href={X_URL}
           target="_blank"
@@ -92,9 +92,9 @@ export function CreatorCard({ variant = "full" }: CreatorCardProps) {
           <img
             src="/creator-avatar.png"
             alt="@manavhariyal"
-            className="w-10 h-10 rounded-full border-2 border-indigo-500/40 shadow-[0_0_12px_rgba(99,102,241,0.4)] object-cover"
+            className="w-10 h-10 rounded-full border-2 border-[#0A84FF]/40 shadow-[0_0_12px_rgba(10,132,255,0.4)] object-cover"
           />
-          <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-black border border-indigo-500/40 flex items-center justify-center">
+          <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-black border border-[#0A84FF]/40 flex items-center justify-center">
             <XIcon className="w-2 h-2 text-white" />
           </span>
         </motion.a>
@@ -103,7 +103,7 @@ export function CreatorCard({ variant = "full" }: CreatorCardProps) {
             href={X_URL}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1.5 text-white text-xs font-bold hover:text-indigo-300 transition-colors"
+            className="flex items-center gap-1.5 text-white text-xs font-bold hover:text-[#8FD6FF] transition-colors"
           >
             <XIcon className="w-2.5 h-2.5 text-white/50 shrink-0" />
             @manavhariyal
@@ -115,7 +115,7 @@ export function CreatorCard({ variant = "full" }: CreatorCardProps) {
           href={X_URL}
           target="_blank"
           rel="noreferrer"
-          className="text-[10px] font-bold text-indigo-400 hover:text-cyan-400 transition-colors shrink-0"
+          className="text-[10px] font-bold text-[#3AB4FF] hover:text-[#22F0FF] transition-colors shrink-0"
         >
           Follow →
         </a>
@@ -124,7 +124,7 @@ export function CreatorCard({ variant = "full" }: CreatorCardProps) {
   }
 
   return (
-    <div className="group flex items-center gap-5 glass-panel-elevated rounded-2xl border border-indigo-500/15 hover:border-indigo-500/40 transition-all duration-300 overflow-hidden p-5 shadow-[0_0_24px_rgba(99,102,241,0.08)] hover:shadow-[0_0_36px_rgba(99,102,241,0.2)]">
+    <div className="group flex items-center gap-5 glass-panel-elevated rounded-2xl border border-[#0A84FF]/15 hover:border-[#0A84FF]/40 transition-all duration-300 overflow-hidden p-5 shadow-[0_0_24px_rgba(10,132,255,0.08)] hover:shadow-[0_0_36px_rgba(10,132,255,0.2)]">
       {/* Avatar → links to X */}
       <motion.a
         href={X_URL}
@@ -134,20 +134,20 @@ export function CreatorCard({ variant = "full" }: CreatorCardProps) {
         transition={{ type: "spring", stiffness: 400, damping: 18 }}
         className="relative shrink-0"
       >
-        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 blur-lg opacity-40 scale-110 group-hover:opacity-70 transition-opacity" />
+        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#0A84FF] to-[#05D8EA] blur-lg opacity-40 scale-110 group-hover:opacity-70 transition-opacity" />
         <img
           src="/creator-avatar.png"
           alt="@manavhariyal"
-          className="relative w-14 h-14 rounded-full border-2 border-indigo-400/40 object-cover shadow-[0_0_16px_rgba(99,102,241,0.4)]"
+          className="relative w-14 h-14 rounded-full border-2 border-[#3AB4FF]/40 object-cover shadow-[0_0_16px_rgba(10,132,255,0.4)]"
         />
-        <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-indigo-600 to-cyan-600 border-2 border-background flex items-center justify-center">
+        <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-[#0B3FD1] to-[#049CAE] border-2 border-background flex items-center justify-center">
           <XIcon className="w-2.5 h-2.5 text-white" />
         </div>
       </motion.a>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <div className="text-[10px] uppercase tracking-widest text-indigo-400/60 font-bold mb-1">Built by</div>
+        <div className="text-[10px] uppercase tracking-widest text-[#3AB4FF]/60 font-bold mb-1">Built by</div>
         <div className="text-white font-bold text-base leading-tight">Manav Hariyal</div>
         <div className="flex items-center gap-3 mt-1 flex-wrap">
           <a
@@ -172,7 +172,7 @@ export function CreatorCard({ variant = "full" }: CreatorCardProps) {
         whileHover={{ scale: 1.05, y: -1 }}
         whileTap={{ scale: 0.97 }}
         transition={{ type: "spring", stiffness: 400, damping: 20 }}
-        className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 text-white font-bold text-sm shadow-[0_0_16px_rgba(99,102,241,0.45)] hover:shadow-[0_0_28px_rgba(99,102,241,0.65)] transition-all"
+        className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#0B3FD1] to-[#049CAE] text-white font-bold text-sm shadow-[0_0_16px_rgba(10,132,255,0.45)] hover:shadow-[0_0_28px_rgba(10,132,255,0.65)] transition-all"
       >
         <XIcon className="w-3.5 h-3.5" />
         Follow on X
