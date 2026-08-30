@@ -14,9 +14,9 @@ const features = [
 ];
 
 const accentMap: Record<string, string> = {
-  indigo: "text-indigo-400 bg-indigo-500/8 border-indigo-500/15",
-  violet: "text-violet-400 bg-violet-500/8 border-violet-500/15",
-  cyan: "text-cyan-400 bg-cyan-500/8 border-cyan-500/15",
+  indigo: "text-[#3AB4FF] bg-[#0A84FF]/8 border-[#0A84FF]/15",
+  violet: "text-[#3AB4FF] bg-[#0A84FF]/8 border-[#0A84FF]/15",
+  cyan: "text-[#22F0FF] bg-[#05D8EA]/8 border-[#05D8EA]/15",
   emerald: "text-emerald-400 bg-emerald-500/8 border-emerald-500/15",
   amber: "text-amber-400 bg-amber-500/8 border-amber-500/15",
   sky: "text-sky-400 bg-sky-500/8 border-sky-500/15",
@@ -29,15 +29,15 @@ export default function Landing() {
       <div className="fixed inset-0 z-0 pointer-events-none bg-grid" />
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full opacity-30"
-          style={{ background: "radial-gradient(ellipse, rgba(99,102,241,0.18) 0%, transparent 70%)" }} />
+          style={{ background: "radial-gradient(ellipse, rgba(10,132,255,0.18) 0%, transparent 70%)" }} />
         <div className="absolute bottom-0 right-[-5%] w-[600px] h-[600px] rounded-full opacity-20"
-          style={{ background: "radial-gradient(ellipse, rgba(6,182,212,0.15) 0%, transparent 70%)" }} />
+          style={{ background: "radial-gradient(ellipse, rgba(34,240,255,0.15) 0%, transparent 70%)" }} />
       </div>
 
       {/* Nav */}
       <nav className="relative z-10 flex items-center justify-between px-8 py-5 max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-3">
-          <img src="/arc-logo.png" alt="Arc Agent Pay" className="h-10 w-auto" style={{ filter: 'drop-shadow(0 0 6px rgba(99,102,241,0.35))' }} />
+          <img src="/arc-logo.png" alt="Arc Agent Pay" className="h-10 w-auto" style={{ filter: 'drop-shadow(0 0 6px rgba(10,132,255,0.35))' }} />
         </div>
         <div className="flex items-center gap-3">
           <a href="https://testnet.arcscan.app" target="_blank" rel="noreferrer"
@@ -72,19 +72,61 @@ export default function Landing() {
           </div>
         </motion.div>
 
-        {/* Logo */}
+        {/* Logo + live architecture visual */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="mb-10"
+          className="mb-10 flex flex-col items-center"
         >
           <img
             src="/arc-logo.png"
             alt="Arc Agent Pay"
-            className="w-40 h-40 md:w-48 md:h-48 object-contain mx-auto"
-            style={{ filter: 'drop-shadow(0 0 30px rgba(99,102,241,0.5)) drop-shadow(0 0 60px rgba(6,182,212,0.25))' }}
+            className="w-28 h-28 md:w-32 md:h-32 object-contain mx-auto mb-8"
+            style={{ filter: 'drop-shadow(0 0 30px rgba(10,132,255,0.5)) drop-shadow(0 0 60px rgba(34,240,255,0.25))' }}
           />
+
+          {/* Real architecture flow: agent -> DCW wallet -> onchain settlement */}
+          <div className="flex items-center gap-3 sm:gap-5 px-4">
+            {[
+              { label: "AI Agent", sub: "signs intent" },
+              { label: "Circle DCW", sub: "wallet policy" },
+              { label: "Arc Settlement", sub: "USDC · ArcScan" },
+            ].map((step, i) => (
+              <div key={step.label} className="flex items-center gap-3 sm:gap-5">
+                <div className="flex flex-col items-center gap-2">
+                  <div
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center relative"
+                    style={{
+                      background: "rgba(12,14,22,0.9)",
+                      border: "1px solid rgba(10,132,255,0.25)",
+                      boxShadow: "0 0 20px rgba(10,132,255,0.15)",
+                    }}
+                  >
+                    <span
+                      className="w-2 h-2 rounded-full absolute"
+                      style={{ background: "#22F0FF", boxShadow: "0 0 8px #22F0FF" }}
+                    />
+                    <span className="text-[10px] font-mono text-white/50">{i + 1}</span>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-xs font-semibold text-white/80 whitespace-nowrap">{step.label}</div>
+                    <div className="text-[10px] text-white/30 font-mono whitespace-nowrap">{step.sub}</div>
+                  </div>
+                </div>
+                {i < 2 && (
+                  <div className="relative w-8 sm:w-12 h-px mt-[-20px]" style={{ background: "linear-gradient(90deg, rgba(10,132,255,0.5), rgba(34,240,255,0.5))" }}>
+                    <motion.span
+                      className="absolute -top-[3px] w-[7px] h-[7px] rounded-full"
+                      style={{ background: "#3AB4FF", boxShadow: "0 0 8px #3AB4FF" }}
+                      animate={{ left: ["0%", "100%"] }}
+                      transition={{ duration: 1.6, repeat: Infinity, ease: "linear", delay: i * 0.5 }}
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </motion.div>
 
         {/* Headline */}
@@ -97,7 +139,7 @@ export default function Landing() {
           <h1 className="text-5xl md:text-7xl font-black tracking-tight text-white leading-[1.04] mb-6"
             style={{ letterSpacing: '-0.03em' }}>
             Payments infrastructure<br />
-            <span style={{ background: "linear-gradient(135deg, #818cf8 0%, #06b6d4 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            <span style={{ background: "linear-gradient(135deg, #3AB4FF 0%, #22F0FF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
               for autonomous agents
             </span>
           </h1>
@@ -109,7 +151,7 @@ export default function Landing() {
 
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Link href="/dashboard">
-              <Button size="lg" className="h-12 px-8 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-[0_0_32px_rgba(99,102,241,0.35)] hover:shadow-[0_0_40px_rgba(99,102,241,0.5)] transition-all">
+              <Button size="lg" className="h-12 px-8 rounded-full bg-[#0B3FD1] hover:bg-[#0A84FF] text-white font-semibold text-sm shadow-[0_0_32px_rgba(10,132,255,0.35)] hover:shadow-[0_0_40px_rgba(10,132,255,0.5)] transition-all">
                 Launch Dashboard <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </Link>
