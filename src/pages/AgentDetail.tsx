@@ -5,7 +5,7 @@ import { useAgents } from "@/hooks/useAgents";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useSpendingRules } from "@/hooks/useSpendingRules";
 import { useWallet } from "@/hooks/useWallet";
-import { formatUSDC, truncateAddress, cn } from "@/lib/utils";
+import { formatUSDC, truncateAddress, cn, getSoonestNextRun } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -153,6 +153,12 @@ export default function AgentDetail() {
     ? parseFloat(formatUnits(balanceData.value, balanceData.decimals)).toFixed(4)
     : null;
 
+  // Derived from this agent's rules — no new backend calls needed.
+  const amountSpentViaRules = agentRules.reduce(
+    (sum, r) => sum + parseFloat(r.amount || "0") * (r.executionCount || 0), 0
+  );
+  const nextAction = getSoonestNextRun(agentRules);
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({ title: "Copied", description: "Address copied to clipboard." });
@@ -288,6 +294,34 @@ export default function AgentDetail() {
                 {agentRules.filter((r) => r.status === "active").length} active
               </div>
             </motion.div>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <Card className="glass-panel-elevated p-6 rounded-2xl border-l-4 border-l-emerald-500/60">
+            <div className="flex justify-between items-start mb-3">
+              <div className="text-white/40 font-semibold uppercase tracking-wider text-xs">Amount Spent (via rules)</div>
+              <TrendingUp className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div className="text-3xl font-black text-white">
+              {amountSpentViaRules.toFixed(4)} <span className="text-sm font-medium text-white/30">USDC</span>
+            </div>
+            <div className="text-white/30 text-xs mt-1.5">
+              Across {agentRules.reduce((n, r) => n + (r.executionCount || 0), 0)} scheduled executions
+            </div>
+          </Card>
+
+          <Card className="glass-panel-elevated p-6 rounded-2xl border-l-4 border-l-[#3AB4FF]/60">
+            <div className="flex justify-between items-start mb-3">
+              <div className="text-white/40 font-semibold uppercase tracking-wider text-xs">Next Action</div>
+              <Clock className="w-4 h-4 text-[#3AB4FF]" />
+            </div>
+            <div className="text-lg font-bold text-white">
+              {nextAction ?? (agentRules.length === 0 ? "No rules set up" : "No active rules")}
+            </div>
+            <div className="text-white/30 text-xs mt-1.5">
+              {agentRules.filter((r) => r.status === "active").length} active rule{agentRules.filter((r) => r.status === "active").length === 1 ? "" : "s"} scheduled
+            </div>
           </Card>
         </div>
 
