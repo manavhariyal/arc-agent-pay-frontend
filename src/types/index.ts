@@ -8,6 +8,9 @@ export interface Agent {
   address: string;
   createdAt: string;
   lowBalanceThreshold?: number;
+  spendingLimit?: number | null;
+  isEmergencyStopped?: boolean;
+  approvedAddresses?: string[];
 }
 
 export interface StoredTransaction {
