@@ -3,8 +3,6 @@ import { motion } from "framer-motion";
 import { ArrowRight, Zap, Shield, Globe, Send, BarChart3, Users, ChevronRight, Bot, Wallet, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CreatorCard } from "@/components/creator/CreatorCard";
-import { lazy, Suspense } from "react";
-const Hero3DLogo = lazy(() => import("@/components/Hero3DLogo").then(m => ({ default: m.Hero3DLogo })));
 
 const features = [
   { icon: Send, title: "Real On-Chain Payments", desc: "Native USDC on Arc Testnet via MetaMask. Every transaction is verifiable on ArcScan.", accent: "indigo" },
@@ -81,20 +79,12 @@ export default function Landing() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="mb-10 flex flex-col items-center"
         >
-          <div className="w-full max-w-[240px] -mt-2 -mb-4">
-            <Suspense fallback={
-              <div className="w-full h-[220px] sm:h-[240px] flex items-center justify-center">
-                <img
-                  src="/arc-logo.png"
-                  alt="Arc Agent Pay"
-                  className="w-20 h-20 object-contain opacity-80"
-                  style={{ filter: 'drop-shadow(0 0 30px rgba(10,132,255,0.5))' }}
-                />
-              </div>
-            }>
-              <Hero3DLogo />
-            </Suspense>
-          </div>
+          <img
+            src="/arc-logo.png"
+            alt="Arc Agent Pay"
+            className="w-28 h-28 md:w-32 md:h-32 object-contain mx-auto mb-8"
+            style={{ filter: 'drop-shadow(0 0 30px rgba(10,132,255,0.5)) drop-shadow(0 0 60px rgba(34,240,255,0.25))' }}
+          />
 
           {/* Real architecture flow: agent -> DCW wallet -> onchain settlement */}
           <div className="flex items-center justify-center gap-2 sm:gap-4 px-4">
