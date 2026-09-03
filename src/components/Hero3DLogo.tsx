@@ -1,83 +1,42 @@
-import { Suspense, useRef, useMemo } from "react";
+import { Suspense, useRef } from "react";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
-import { Environment, ContactShadows, Float } from "@react-three/drei";
+import { Float } from "@react-three/drei";
 import * as THREE from "three";
 
 /**
- * A real, lit 3D badge rendering the Arc Agent Pay mark — not a CSS image with
- * a drop-shadow. Uses actual WebGL lighting, an environment map for reflections,
- * a real ground shadow, and gentle physically-plausible floating motion.
+ * A simple, robust circular 3D badge showing the Arc Agent Pay logo.
+ * Deliberately avoids: environment-map reflections (external CDN fetch that
+ * can fail in production and render materials near-black), and any rotation
+ * around the vertical axis (which turns the flat logo face away from camera
+ * and makes it appear to "disappear"). The only motion is a gentle vertical
+ * float — the logo faces the camera at all times.
  */
 function LogoBadge() {
   const texture = useLoader(THREE.TextureLoader, "/arc-logo.png");
-  const meshRef = useRef<THREE.Group>(null);
+  const groupRef = useRef<THREE.Group>(null);
 
-  // Give the PNG proper color handling so it doesn't look washed out under lighting.
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.anisotropy = 8;
 
-  const roundedRectShape = useMemo(() => {
-    const shape = new THREE.Shape();
-    const w = 2.6, h = 2.6, r = 0.42;
-    shape.moveTo(-w / 2 + r, -h / 2);
-    shape.lineTo(w / 2 - r, -h / 2);
-    shape.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
-    shape.lineTo(w / 2, h / 2 - r);
-    shape.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
-    shape.lineTo(-w / 2 + r, h / 2);
-    shape.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
-    shape.lineTo(-w / 2, -h / 2 + r);
-    shape.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
-    return shape;
-  }, []);
-
-  const extrudeSettings = useMemo(
-    () => ({
-      depth: 0.22,
-      bevelEnabled: true,
-      bevelThickness: 0.05,
-      bevelSize: 0.045,
-      bevelSegments: 8,
-      curveSegments: 24,
-    }),
-    []
-  );
-
   useFrame((state) => {
-    if (!meshRef.current) return;
-    const t = state.clock.getElapsedTime();
-    meshRef.current.rotation.y = Math.sin(t * 0.35) * 0.18;
-    meshRef.current.rotation.x = Math.sin(t * 0.25) * 0.05 + 0.04;
-    // subtle mouse-driven parallax
-    meshRef.current.rotation.y += state.pointer.x * 0.1;
-    meshRef.current.rotation.x += -state.pointer.y * 0.05;
+    if (!groupRef.current) return;
+    // Tiny, subtle tilt only — never enough to turn the face away from camera.
+    groupRef.current.rotation.y = state.pointer.x * 0.06;
+    groupRef.current.rotation.x = -state.pointer.y * 0.04;
   });
 
   return (
-    <Float speed={1.4} rotationIntensity={0} floatIntensity={0.7}>
-      <group ref={meshRef}>
+    <Float speed={1.2} rotationIntensity={0} floatIntensity={0.5}>
+      <group ref={groupRef}>
+        {/* Disc base — simple matte material, no environment-map dependency */}
         <mesh castShadow receiveShadow>
-          <extrudeGeometry args={[roundedRectShape, extrudeSettings]} />
-          <meshPhysicalMaterial
-            color="#0a1220"
-            metalness={0.35}
-            roughness={0.28}
-            clearcoat={0.6}
-            clearcoatRoughness={0.25}
-            envMapIntensity={1.4}
-          />
+          <cylinderGeometry args={[1.05, 1.05, 0.14, 64]} />
+          <meshStandardMaterial color="#0a1220" metalness={0.15} roughness={0.55} />
         </mesh>
-        {/* Logo face — rigidly attached to the badge so it rotates together, never drifts */}
-        <mesh position={[0, 0, extrudeSettings.depth + 0.002]}>
-          <planeGeometry args={[2.15, 2.15]} />
-          <meshPhysicalMaterial
-            map={texture}
-            transparent
-            roughness={0.4}
-            clearcoat={0.3}
-            metalness={0.05}
-            envMapIntensity={0.8}
-          />
+        {/* Logo face — flat circular plane, always facing forward */}
+        <mesh position={[0, 0, 0.071]}>
+          <circleGeometry args={[0.98, 64]} />
+          <meshStandardMaterial map={texture} transparent roughness={0.5} metalness={0.05} />
         </mesh>
       </group>
     </Float>
@@ -86,40 +45,27 @@ function LogoBadge() {
 
 export function Hero3DLogo() {
   return (
-    <div className="w-full h-[420px] sm:h-[460px] relative">
+    <div className="w-full h-[220px] sm:h-[240px] relative">
       <Canvas
         shadows
         dpr={[1, 2]}
-        camera={{ position: [0, 0.3, 5.2], fov: 38 }}
+        camera={{ position: [0, 0, 4.2], fov: 32 }}
         gl={{ antialias: true, alpha: true }}
       >
         <Suspense fallback={null}>
-          {/* Key light — the main directional highlight, slightly warm */}
           <directionalLight
             position={[3, 4, 4]}
-            intensity={2.2}
+            intensity={2}
             color="#ffffff"
             castShadow
             shadow-mapSize-width={1024}
             shadow-mapSize-height={1024}
           />
-          {/* Rim/fill light using the brand blue, from behind-left */}
-          <pointLight position={[-3, 1, -2]} intensity={6} color="#0A84FF" />
-          {/* Cool fill from below-right so the underside isn't pure black */}
-          <pointLight position={[2, -2, 2]} intensity={2} color="#22F0FF" />
-          <ambientLight intensity={0.25} />
+          <pointLight position={[-3, 1, 2]} intensity={5} color="#0A84FF" />
+          <pointLight position={[2, -1, 3]} intensity={2} color="#22F0FF" />
+          <ambientLight intensity={0.5} />
 
           <LogoBadge />
-
-          <ContactShadows
-            position={[0, -1.4, 0]}
-            opacity={0.55}
-            scale={8}
-            blur={2.6}
-            far={2}
-            color="#0A84FF"
-          />
-          <Environment preset="city" environmentIntensity={0.6} />
         </Suspense>
       </Canvas>
     </div>
