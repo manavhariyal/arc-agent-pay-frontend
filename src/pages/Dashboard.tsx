@@ -5,7 +5,8 @@ import { useTransactions } from "@/hooks/useTransactions";
 import { useUserBalance } from "@/hooks/useUserBalance";
 import { formatUSDC, truncateAddress } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { Wallet, Activity, Zap, Copy, ArrowUpRight, ExternalLink, AlertTriangle, Send, Plus, Droplets, ShieldAlert, LogOut, ChevronDown } from "lucide-react";
+import { Wallet, Activity, Zap, Copy, ArrowUpRight, ExternalLink, AlertTriangle, Send, Plus, Droplets, ShieldAlert, LogOut, ChevronDown, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -311,7 +312,19 @@ export default function Dashboard() {
                   + Deposit
                 </button>
               </div>
-              <div className="text-xs text-white/40 uppercase tracking-wider font-medium mb-2">Auto-Pay Balance</div>
+              <div className="text-xs text-white/40 uppercase tracking-wider font-medium mb-2 flex items-center gap-1.5">
+                Your Deposited Balance
+                <TooltipProvider delayDuration={150}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="w-3 h-3 text-white/25 hover:text-white/50 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[240px] text-xs">
+                      This is your personal balance, deposited by you for your agents' scheduled payments. It's separate from the shared Auto-Payment Treasury shown on the Agents page, which funds all users' scheduled payments together.
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <div className="text-3xl font-black leading-none">
                 {isConnected ? (
                   <span className={userBalanceAmount < 10 ? "text-amber-400" : "text-[#22F0FF]"}>
