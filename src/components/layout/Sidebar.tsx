@@ -25,7 +25,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/agents", label: "Agents", icon: Users },
     { href: "/rules", label: "Rules", icon: GitMerge },
-    { href: "/multi-send", label: "Multi-Send", icon: ListChecks },
+    { href: "/multi-send", label: "Multi-Send", icon: ListChecks, badge: "Soon" },
     { href: "/activity", label: "Activity", icon: Activity },
     { href: "/analytics", label: "Analytics", icon: BarChart3 },
     { href: "/x402-demo", label: "x402 Demo", icon: Zap },
@@ -89,7 +89,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                     "w-4 h-4 shrink-0 transition-colors",
                     isActive ? "text-[#3AB4FF]" : "text-white/25"
                   )} />
-                  <span className="font-medium text-sm tracking-tight">{link.label}</span>
+                  <span className="font-medium text-sm tracking-tight flex-1">{link.label}</span>
+                  {link.badge && (
+                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full text-amber-400 bg-amber-400/10 border border-amber-400/20 shrink-0">
+                      {link.badge}
+                    </span>
+                  )}
                 </motion.div>
               </Link>
             );
