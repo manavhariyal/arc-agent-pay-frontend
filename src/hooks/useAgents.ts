@@ -13,7 +13,10 @@ function mapBackendAgent(a: any): Agent {
     status: a.status ?? 'active',
     alertThreshold: a.alert_threshold ?? 10,
     createdAt: a.created_at,
-  }
+    spendingLimit: a.spending_limit ?? null,
+    isEmergencyStopped: a.is_emergency_stopped ?? false,
+    approvedAddresses: Array.isArray(a.approved_addresses) ? a.approved_addresses : [],
+  } as any
 }
 
 export function useAgents() {
@@ -157,6 +160,9 @@ export function useAgents() {
       if (updates.walletAddress) body.wallet_address = updates.walletAddress
       if (updates.status) body.status = updates.status
       if (updates.alertThreshold !== undefined) body.alert_threshold = updates.alertThreshold
+      if ((updates as any).spendingLimit !== undefined) body.spending_limit = (updates as any).spendingLimit
+      if ((updates as any).isEmergencyStopped !== undefined) body.is_emergency_stopped = (updates as any).isEmergencyStopped
+      if ((updates as any).approvedAddresses !== undefined) body.approved_addresses = (updates as any).approvedAddresses
       await fetch(`${BACKEND_URL}/api/agents/${id}?owner=${ownerKey}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
