@@ -3,7 +3,8 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { useAgents } from "@/hooks/useAgents";
 import { truncateAddress, cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { Plus, Search, Shield, MoreVertical, ExternalLink, Trash2, Edit2, Zap, Copy } from "lucide-react";
+import { Plus, Search, Shield, MoreVertical, ExternalLink, Trash2, Edit2, Zap, Copy, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -184,7 +185,19 @@ export default function Agents() {
                 <Zap className="w-5 h-5 text-[#22F0FF]" />
               </div>
               <div>
-                <div className="text-white font-bold text-sm mb-0.5">⚡ Auto-Payment Treasury</div>
+                <div className="text-white font-bold text-sm mb-0.5 flex items-center gap-1.5">
+                  ⚡ Auto-Payment Treasury
+                  <TooltipProvider delayDuration={150}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-3 h-3 text-white/25 hover:text-white/50 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-[240px] text-xs">
+                        This is a shared wallet that funds scheduled payments for all users — separate from your own personal "Your Deposited Balance" on the Dashboard.
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <div className="text-white/40 text-xs">All scheduled payments are sent from this wallet. Fund it to enable auto-payments!</div>
               </div>
             </div>
