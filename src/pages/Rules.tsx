@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useSpendingRules } from "@/hooks/useSpendingRules";
 import { useAgents } from "@/hooks/useAgents";
-import { formatUSDC, truncateAddress, cn } from "@/lib/utils";
+import { formatUSDC, truncateAddress, cn, getNextRunLabel } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
   Shield, Plus, Settings2, Trash2, ToggleLeft, ToggleRight,
@@ -46,6 +46,10 @@ const intervalLabels: Record<string, string> = {
   daily: "Every Day",
   weekly: "Every Week",
   monthly: "Every Month",
+};
+
+const intervalHours: Record<string, number> = {
+  hourly: 1, every6h: 6, every12h: 12, daily: 24, weekly: 168, monthly: 720,
 };
 
 export default function Rules() {
@@ -343,6 +347,14 @@ export default function Rules() {
                               </span>
                             </div>
                             <div className="text-[10px] text-white/20 mt-1 font-mono">{truncateAddress(rule.recipient)}</div>
+
+                            {/* Next run time */}
+                            {rule.status === "active" && rule.interval && (
+                              <div className="mt-1.5 flex items-center gap-1 text-[10px] text-[#3AB4FF]/70 font-mono">
+                                <Clock className="w-2.5 h-2.5" />
+                                {getNextRunLabel(rule.interval, (rule as any).lastExecutedAt)}
+                              </div>
+                            )}
 
                             {/* Execution stats */}
                             {(rule as any).executionCount > 0 && (
