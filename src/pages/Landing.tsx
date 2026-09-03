@@ -81,13 +81,13 @@ export default function Landing() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="mb-10 flex flex-col items-center"
         >
-          <div className="w-full max-w-[420px] -mt-4 -mb-6">
+          <div className="w-full max-w-[240px] -mt-2 -mb-4">
             <Suspense fallback={
-              <div className="w-full h-[420px] sm:h-[460px] flex items-center justify-center">
+              <div className="w-full h-[220px] sm:h-[240px] flex items-center justify-center">
                 <img
                   src="/arc-logo.png"
                   alt="Arc Agent Pay"
-                  className="w-28 h-28 object-contain opacity-80"
+                  className="w-20 h-20 object-contain opacity-80"
                   style={{ filter: 'drop-shadow(0 0 30px rgba(10,132,255,0.5))' }}
                 />
               </div>
