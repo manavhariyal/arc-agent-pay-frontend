@@ -202,123 +202,110 @@ export default function ActivityFeed() {
                 )}
               </div>
             ) : (
-              <div className="relative pl-8 sm:pl-12">
-                <div className="absolute left-[15px] sm:left-[23px] top-0 bottom-0 w-px bg-[#0A84FF]/20" />
-                <motion.div variants={container} initial="hidden" animate="show" className="space-y-5">
-
-                  {filteredBackend.map((tx) => (
-                    <motion.div key={`backend-${tx.id}`} variants={item} className="relative">
-                      <div className={cn(
-                        "absolute -left-[35px] sm:-left-[43px] top-5 w-4 h-4 rounded-full border-2 border-background",
-                        tx.status === "success" ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)]" :
-                        tx.status === "pending" ? "bg-amber-500 animate-pulse" : "bg-rose-500"
-                      )} />
-                      <div className="glass-panel-elevated p-5 rounded-2xl hover:border-[#0A84FF]/20 transition-all">
-                        <div className="flex flex-col sm:flex-row justify-between gap-4">
-                          <div className="flex items-start gap-4">
-                            <div className={cn(
-                              "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border",
-                              tx.status === "success" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                              tx.status === "pending" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
-                              "bg-rose-500/10 text-rose-400 border-rose-500/20"
-                            )}>
-                              {tx.status === "success" ? <CheckCircle2 className="w-5 h-5" /> :
-                               tx.status === "pending" ? <Clock className="w-5 h-5" /> :
-                               <XCircle className="w-5 h-5" />}
+              <div className="space-y-6">
+                {filteredBackend.length > 0 && (
+                  <motion.div variants={container} initial="hidden" animate="show" className="rounded-2xl overflow-hidden border border-white/[0.06]">
+                    {filteredBackend.map((tx, idx) => {
+                      const statusColor =
+                        tx.status === "success" ? "#34d399" :
+                        tx.status === "pending" ? "#fbbf24" : "#fb7185";
+                      return (
+                        <motion.div
+                          key={`backend-${tx.id}`}
+                          variants={item}
+                          className={cn(
+                            "relative flex items-center gap-4 px-4 sm:px-5 py-3.5 transition-colors hover:bg-white/[0.02]",
+                            idx !== filteredBackend.length - 1 && "border-b border-white/[0.05]"
+                          )}
+                          style={{ background: idx % 2 === 0 ? "rgba(255,255,255,0.012)" : "transparent" }}
+                        >
+                          <div className="w-1 self-stretch rounded-full shrink-0" style={{ background: statusColor, opacity: 0.7 }} />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-bold text-white text-sm">{tx.agents?.name || "Auto Payment"}</span>
+                              <span className="text-[9px] uppercase font-bold tracking-wider text-[#3AB4FF]/70 font-mono">scheduled</span>
                             </div>
-                            <div>
-                              <div className="font-bold text-white text-base mb-1">
-                                <span className="text-[#9FF6FF]">{tx.agents?.name || "Auto Payment"}</span>
-                                <Badge variant="outline" className="ml-2 text-[9px] text-[#22F0FF] border-[#22F0FF]/20 bg-[#22F0FF]/10">SCHEDULED</Badge>
-                              </div>
-                              <div className="text-xs text-white/40 mb-1 font-mono">
-                                To: {truncateAddress(tx.to_address)}
-                              </div>
+                            <div className="text-xs text-white/35 font-mono mt-0.5 truncate">
+                              → {truncateAddress(tx.to_address)}
                               {tx.rule_id && (
-                                <div className="text-[11px] text-[#3AB4FF]/70 mb-1 flex items-center gap-1">
-                                  <Clock className="w-2.5 h-2.5" />
+                                <span className="text-[#3AB4FF]/50">
+                                  {"  ·  "}
                                   {ruleById.has(tx.rule_id)
-                                    ? `Triggered by: ${ruleById.get(tx.rule_id)!.recipientLabel || intervalLabelsShort[ruleById.get(tx.rule_id)!.interval] || "scheduled rule"}`
-                                    : "Triggered by a rule that's since been deleted"}
-                                </div>
+                                    ? `via ${ruleById.get(tx.rule_id)!.recipientLabel || intervalLabelsShort[ruleById.get(tx.rule_id)!.interval] || "rule"}`
+                                    : "rule deleted"}
+                                </span>
                               )}
-                              <div className="text-[11px] text-white/25 flex items-center gap-2">
-                                {new Date(tx.created_at).toLocaleString()}
-                                {tx.tx_hash && (
-                                  <a href={`${ARC_NETWORK.explorerUrl}/tx/${tx.tx_hash}`} target="_blank" rel="noreferrer"
-                                    className="text-[#3AB4FF]/70 hover:text-[#3AB4FF] transition-colors font-semibold flex items-center gap-1">
-                                    ArcScan <ExternalLink className="w-2.5 h-2.5" />
-                                  </a>
-                                )}
-                              </div>
+                            </div>
+                            <div className="text-[10px] text-white/20 font-mono mt-1 flex items-center gap-2">
+                              {new Date(tx.created_at).toLocaleString()}
+                              {tx.tx_hash && (
+                                <a href={`${ARC_NETWORK.explorerUrl}/tx/${tx.tx_hash}`} target="_blank" rel="noreferrer"
+                                  className="text-[#3AB4FF]/60 hover:text-[#3AB4FF] transition-colors flex items-center gap-1">
+                                  ArcScan <ExternalLink className="w-2.5 h-2.5" />
+                                </a>
+                              )}
                             </div>
                           </div>
-                          <div className="flex flex-col items-end gap-2">
-                            <div className="font-mono font-black text-white text-2xl">-{tx.amount} USDC</div>
-                            <Badge variant="outline" className={cn(
-                              "text-[10px] uppercase font-bold",
-                              tx.status === "success" ? "text-emerald-400 border-emerald-400/20 bg-emerald-400/10" :
-                              tx.status === "pending" ? "text-amber-400 border-amber-400/20 bg-amber-400/10" :
-                              "text-rose-400 border-rose-400/20 bg-rose-400/10"
-                            )}>{tx.status}</Badge>
+                          <div className="text-right shrink-0">
+                            <div className="font-mono font-black text-white text-base sm:text-lg">-{tx.amount}</div>
+                            <div className="text-[10px] font-mono uppercase tracking-wider" style={{ color: statusColor }}>
+                              {tx.status}
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
+                        </motion.div>
+                      );
+                    })}
+                  </motion.div>
+                )}
 
-                  {filtered.map((tx) => {
-                    let usdcAmount = 0;
-                    try { usdcAmount = parseFloat(formatUnits(BigInt(tx.amount), 18)); } catch {}
-                    return (
-                      <motion.div key={tx.id} variants={item} className="relative">
-                        <div className={cn(
-                          "absolute -left-[35px] sm:-left-[43px] top-5 w-4 h-4 rounded-full border-2 border-background",
-                          tx.status === "confirmed" ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)]" :
-                          tx.status === "pending" ? "bg-amber-500 animate-pulse" : "bg-rose-500"
-                        )} />
-                        <div className="glass-panel-elevated p-5 rounded-2xl hover:border-[#0A84FF]/20 transition-all">
-                          <div className="flex flex-col sm:flex-row justify-between gap-4">
-                            <div className="flex items-start gap-4">
-                              <div className={cn(
-                                "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border",
-                                tx.status === "confirmed" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                                tx.status === "pending" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
-                                "bg-rose-500/10 text-rose-400 border-rose-500/20"
-                              )}>
-                                {tx.status === "confirmed" ? <CheckCircle2 className="w-5 h-5" /> :
-                                 tx.status === "pending" ? <Clock className="w-5 h-5" /> :
-                                 <XCircle className="w-5 h-5" />}
-                              </div>
-                              <div>
-                                <div className="font-bold text-white text-base mb-1">
-                                  {tx.agentName ? <span className="text-[#8FD6FF]">{tx.agentName}</span> : <span className="text-white/70">Direct Payment</span>}
-                                </div>
-                                <div className="text-xs text-white/40 mb-1 font-mono">To: {truncateAddress(tx.toAddress)}</div>
-                                <div className="text-[11px] text-white/25 flex items-center gap-2">
-                                  {new Date(tx.timestamp).toLocaleString()}
-                                  <a href={`${ARC_NETWORK.explorerUrl}/tx/${tx.hash}`} target="_blank" rel="noreferrer"
-                                    className="text-[#3AB4FF]/70 hover:text-[#3AB4FF] transition-colors font-semibold flex items-center gap-1">
-                                    ArcScan <ExternalLink className="w-2.5 h-2.5" />
-                                  </a>
-                                </div>
-                              </div>
+                {filtered.length > 0 && (
+                  <motion.div variants={container} initial="hidden" animate="show" className="rounded-2xl overflow-hidden border border-white/[0.06]">
+                    {filtered.map((tx, idx) => {
+                      let usdcAmount = 0;
+                      try { usdcAmount = parseFloat(formatUnits(BigInt(tx.amount), 18)); } catch {}
+                      const statusColor =
+                        tx.status === "confirmed" ? "#34d399" :
+                        tx.status === "pending" ? "#fbbf24" : "#fb7185";
+                      return (
+                        <motion.div
+                          key={tx.id}
+                          variants={item}
+                          className={cn(
+                            "relative flex items-center gap-4 px-4 sm:px-5 py-3.5 transition-colors hover:bg-white/[0.02]",
+                            idx !== filtered.length - 1 && "border-b border-white/[0.05]"
+                          )}
+                          style={{ background: idx % 2 === 0 ? "rgba(255,255,255,0.012)" : "transparent" }}
+                        >
+                          <div className="w-1 self-stretch rounded-full shrink-0" style={{ background: statusColor, opacity: 0.7 }} />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-bold text-white text-sm">
+                                {tx.agentName || "Direct Payment"}
+                              </span>
+                              <span className="text-[9px] uppercase font-bold tracking-wider text-white/30 font-mono">manual</span>
                             </div>
-                            <div className="flex flex-col items-end gap-2">
-                              <div className="font-mono font-black text-white text-2xl">-{formatUSDC(usdcAmount)}</div>
-                              <Badge variant="outline" className={cn(
-                                "text-[10px] uppercase font-bold",
-                                tx.status === "confirmed" ? "text-emerald-400 border-emerald-400/20 bg-emerald-400/10" :
-                                tx.status === "pending" ? "text-amber-400 border-amber-400/20 bg-amber-400/10" :
-                                "text-rose-400 border-rose-400/20 bg-rose-400/10"
-                              )}>{tx.status}</Badge>
+                            <div className="text-xs text-white/35 font-mono mt-0.5 truncate">
+                              → {truncateAddress(tx.toAddress)}
+                            </div>
+                            <div className="text-[10px] text-white/20 font-mono mt-1 flex items-center gap-2">
+                              {new Date(tx.timestamp).toLocaleString()}
+                              <a href={`${ARC_NETWORK.explorerUrl}/tx/${tx.hash}`} target="_blank" rel="noreferrer"
+                                className="text-[#3AB4FF]/60 hover:text-[#3AB4FF] transition-colors flex items-center gap-1">
+                                ArcScan <ExternalLink className="w-2.5 h-2.5" />
+                              </a>
                             </div>
                           </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </motion.div>
+                          <div className="text-right shrink-0">
+                            <div className="font-mono font-black text-white text-base sm:text-lg">-{formatUSDC(usdcAmount)}</div>
+                            <div className="text-[10px] font-mono uppercase tracking-wider" style={{ color: statusColor }}>
+                              {tx.status}
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </motion.div>
+                )}
               </div>
             )}
           </>
