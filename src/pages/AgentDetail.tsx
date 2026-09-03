@@ -13,6 +13,7 @@ import {
 import {
   ArrowLeft, Wallet, Shield, Zap, History, Settings, ExternalLink,
   Copy, Send, CheckCircle2, Clock, XCircle, Trash2, ToggleLeft, ToggleRight, Link2, TrendingUp,
+  ShieldAlert, Plus, X, Ban,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,12 +28,18 @@ import { SendPaymentDialog } from "@/components/wallet/SendPaymentDialog";
 import type { AgentStatus } from "@/types";
 import type { StoredTransaction } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function AgentDetail() {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const { address } = useWallet();
-  const { agents, setAgentStatus } = useAgents();
+  const { agents, setAgentStatus, updateAgent } = useAgents();
   const { transactions } = useTransactions(address);
   const [backendAgentTxs, setBackendAgentTxs] = useState<StoredTransaction[]>([]);
 
@@ -71,6 +78,60 @@ export default function AgentDetail() {
   const [copiedPayLink, setCopiedPayLink] = useState(false);
 
   const agent = agents.find((a) => a.id === id);
+
+  // Spending controls state — initialized from the agent once loaded.
+  const [limitInput, setLimitInput] = useState<string>("");
+  const [newApprovedAddr, setNewApprovedAddr] = useState<string>("");
+  const [savingLimit, setSavingLimit] = useState(false);
+  const [savingStop, setSavingStop] = useState(false);
+
+  useEffect(() => {
+    if (agent) setLimitInput((agent as any).spendingLimit != null ? String((agent as any).spendingLimit) : "");
+  }, [agent?.id, (agent as any)?.spendingLimit]);
+
+  const approvedAddresses: string[] = (agent as any)?.approvedAddresses || [];
+  const isEmergencyStopped: boolean = !!(agent as any)?.isEmergencyStopped;
+
+  const saveSpendingLimit = async () => {
+    if (!agent) return;
+    setSavingLimit(true);
+    const parsed = limitInput.trim() === "" ? null : parseFloat(limitInput);
+    await updateAgent(agent.id, { spendingLimit: parsed } as any);
+    setSavingLimit(false);
+    toast({ title: parsed === null ? "Spending limit removed" : `Spending limit set to ${parsed} USDC` });
+  };
+
+  const toggleEmergencyStop = async () => {
+    if (!agent) return;
+    setSavingStop(true);
+    await updateAgent(agent.id, { isEmergencyStopped: !isEmergencyStopped } as any);
+    setSavingStop(false);
+    toast({
+      title: !isEmergencyStopped ? "Emergency stop activated" : "Emergency stop lifted",
+      description: !isEmergencyStopped ? "No rules for this agent will execute until you lift this." : "This agent's rules can run normally again.",
+      variant: !isEmergencyStopped ? "destructive" : "default",
+    });
+  };
+
+  const addApprovedAddress = async () => {
+    if (!agent || !newApprovedAddr.trim()) return;
+    const addr = newApprovedAddr.trim();
+    if (!/^0x[a-fA-F0-9]{40}$/.test(addr)) {
+      toast({ title: "Invalid address", description: "Enter a valid 0x wallet address.", variant: "destructive" });
+      return;
+    }
+    if (approvedAddresses.some((a) => a.toLowerCase() === addr.toLowerCase())) {
+      setNewApprovedAddr("");
+      return;
+    }
+    await updateAgent(agent.id, { approvedAddresses: [...approvedAddresses, addr] } as any);
+    setNewApprovedAddr("");
+  };
+
+  const removeApprovedAddress = async (addr: string) => {
+    if (!agent) return;
+    await updateAgent(agent.id, { approvedAddresses: approvedAddresses.filter((a) => a !== addr) } as any);
+  };
 
   const copyPayLink = () => {
     if (!agent || !agent.walletAddress) return;
@@ -324,6 +385,107 @@ export default function AgentDetail() {
             </div>
           </Card>
         </div>
+
+        {/* Spending Controls */}
+        <Card className="glass-panel-elevated p-6 rounded-2xl border-l-4 border-l-amber-500/60">
+          <div className="flex items-center gap-2 mb-5">
+            <ShieldAlert className="w-4 h-4 text-amber-400" />
+            <div className="text-white font-bold text-sm">Spending Controls</div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Spending limit */}
+            <div>
+              <div className="text-white/40 text-xs uppercase tracking-wider font-semibold mb-2">Total Spending Limit</div>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  placeholder="No limit"
+                  value={limitInput}
+                  onChange={(e) => setLimitInput(e.target.value)}
+                  className="bg-white/[0.03] border-white/10 text-white text-sm h-9"
+                />
+                <Button size="sm" onClick={saveSpendingLimit} disabled={savingLimit} className="h-9 shrink-0">
+                  {savingLimit ? "..." : "Save"}
+                </Button>
+              </div>
+              <div className="text-white/25 text-[11px] mt-2">
+                Lifetime USDC this agent may send across all its rules. Auto-pauses when reached. Leave empty for unlimited.
+              </div>
+            </div>
+
+            {/* Approved addresses */}
+            <div>
+              <div className="text-white/40 text-xs uppercase tracking-wider font-semibold mb-2">Approved Addresses</div>
+              <div className="flex items-center gap-2 mb-2">
+                <Input
+                  placeholder="0x..."
+                  value={newApprovedAddr}
+                  onChange={(e) => setNewApprovedAddr(e.target.value)}
+                  className="bg-white/[0.03] border-white/10 text-white text-xs font-mono h-9"
+                />
+                <Button size="sm" variant="outline" onClick={addApprovedAddress} className="h-9 shrink-0 px-2.5">
+                  <Plus className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+              {approvedAddresses.length === 0 ? (
+                <div className="text-white/25 text-[11px]">No allowlist set — this agent can pay any address its rules specify.</div>
+              ) : (
+                <div className="space-y-1.5 max-h-[100px] overflow-y-auto">
+                  {approvedAddresses.map((addr) => (
+                    <div key={addr} className="flex items-center justify-between bg-white/[0.03] rounded-lg px-2.5 py-1.5">
+                      <span className="text-[11px] font-mono text-white/70">{truncateAddress(addr)}</span>
+                      <button onClick={() => removeApprovedAddress(addr)} className="text-white/30 hover:text-rose-400 transition-colors">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Emergency stop */}
+            <div>
+              <div className="text-white/40 text-xs uppercase tracking-wider font-semibold mb-2">Emergency Stop</div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant={isEmergencyStopped ? "outline" : "destructive"}
+                    size="sm"
+                    disabled={savingStop}
+                    className={cn("w-full h-9", isEmergencyStopped && "border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10")}
+                  >
+                    <Ban className="w-3.5 h-3.5 mr-1.5" />
+                    {isEmergencyStopped ? "Lift Emergency Stop" : "Emergency Stop"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      {isEmergencyStopped ? "Lift emergency stop?" : "Stop all payments for this agent?"}
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {isEmergencyStopped
+                        ? "This agent's scheduled rules will be able to execute again on their normal schedule."
+                        : "No rule belonging to this agent will execute — including scheduled runs and manual \"Execute Now\" — until you lift this. Existing rules stay configured, they just won't fire."}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={toggleEmergencyStop} className={cn(!isEmergencyStopped && "bg-rose-600 hover:bg-rose-700")}>
+                      {isEmergencyStopped ? "Lift Stop" : "Confirm Stop"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <div className="text-white/25 text-[11px] mt-2">
+                {isEmergencyStopped
+                  ? "All rules for this agent are currently blocked from running."
+                  : "A manual kill switch, separate from individual rule pausing."}
+              </div>
+            </div>
+          </div>
+        </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="flex flex-col gap-4">
