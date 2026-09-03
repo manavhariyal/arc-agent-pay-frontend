@@ -10,7 +10,7 @@ import * as THREE from "three";
  */
 function LogoBadge() {
   const texture = useLoader(THREE.TextureLoader, "/arc-logo.png");
-  const meshRef = useRef<THREE.Mesh>(null);
+  const meshRef = useRef<THREE.Group>(null);
 
   // Give the PNG proper color handling so it doesn't look washed out under lighting.
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -46,38 +46,40 @@ function LogoBadge() {
   useFrame((state) => {
     if (!meshRef.current) return;
     const t = state.clock.getElapsedTime();
-    meshRef.current.rotation.y = Math.sin(t * 0.35) * 0.32;
-    meshRef.current.rotation.x = Math.sin(t * 0.25) * 0.08 + 0.05;
+    meshRef.current.rotation.y = Math.sin(t * 0.35) * 0.18;
+    meshRef.current.rotation.x = Math.sin(t * 0.25) * 0.05 + 0.04;
     // subtle mouse-driven parallax
-    meshRef.current.rotation.y += state.pointer.x * 0.15;
-    meshRef.current.rotation.x += -state.pointer.y * 0.08;
+    meshRef.current.rotation.y += state.pointer.x * 0.1;
+    meshRef.current.rotation.x += -state.pointer.y * 0.05;
   });
 
   return (
     <Float speed={1.4} rotationIntensity={0} floatIntensity={0.7}>
-      <mesh ref={meshRef} castShadow receiveShadow>
-        <extrudeGeometry args={[roundedRectShape, extrudeSettings]} />
-        <meshPhysicalMaterial
-          color="#0a1220"
-          metalness={0.35}
-          roughness={0.28}
-          clearcoat={0.6}
-          clearcoatRoughness={0.25}
-          envMapIntensity={1.4}
-        />
-      </mesh>
-      {/* Logo face — separate plane so the texture stays crisp regardless of bevel geometry */}
-      <mesh position={[0, 0, extrudeSettings.depth + 0.001]}>
-        <planeGeometry args={[2.15, 2.15]} />
-        <meshPhysicalMaterial
-          map={texture}
-          transparent
-          roughness={0.35}
-          clearcoat={0.4}
-          metalness={0.1}
-          envMapIntensity={1.1}
-        />
-      </mesh>
+      <group ref={meshRef}>
+        <mesh castShadow receiveShadow>
+          <extrudeGeometry args={[roundedRectShape, extrudeSettings]} />
+          <meshPhysicalMaterial
+            color="#0a1220"
+            metalness={0.35}
+            roughness={0.28}
+            clearcoat={0.6}
+            clearcoatRoughness={0.25}
+            envMapIntensity={1.4}
+          />
+        </mesh>
+        {/* Logo face — rigidly attached to the badge so it rotates together, never drifts */}
+        <mesh position={[0, 0, extrudeSettings.depth + 0.002]}>
+          <planeGeometry args={[2.15, 2.15]} />
+          <meshPhysicalMaterial
+            map={texture}
+            transparent
+            roughness={0.4}
+            clearcoat={0.3}
+            metalness={0.05}
+            envMapIntensity={0.8}
+          />
+        </mesh>
+      </group>
     </Float>
   );
 }
