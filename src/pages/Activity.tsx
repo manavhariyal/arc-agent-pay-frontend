@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useTransactions } from "@/hooks/useTransactions";
+import { useSpendingRules } from "@/hooks/useSpendingRules";
 import { useWallet } from "@/hooks/useWallet";
 import { formatUSDC, truncateAddress, cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -18,11 +19,17 @@ import { formatUnits } from "viem";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://arc-agent-pay-backend.onrender.com'
 
+const intervalLabelsShort: Record<string, string> = {
+  hourly: "hourly rule", every6h: "6h rule", every12h: "12h rule",
+  daily: "daily rule", weekly: "weekly rule", monthly: "monthly rule",
+};
+
 type StatusFilter = "all" | "confirmed" | "pending" | "failed";
 
 interface BackendTx {
   id: string;
   agent_id: string;
+  rule_id?: string | null;
   from_address: string;
   to_address: string;
   amount: number;
@@ -37,6 +44,8 @@ interface BackendTx {
 export default function ActivityFeed() {
   const { address, isConnected, isOnArcTestnet } = useWallet();
   const { transactions, clearAll } = useTransactions(address);
+  const { rules } = useSpendingRules();
+  const ruleById = new Map(rules.map((r) => [r.id, r]));
   const { toast } = useToast();
   const [sendOpen, setSendOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -225,6 +234,14 @@ export default function ActivityFeed() {
                               <div className="text-xs text-white/40 mb-1 font-mono">
                                 To: {truncateAddress(tx.to_address)}
                               </div>
+                              {tx.rule_id && (
+                                <div className="text-[11px] text-[#3AB4FF]/70 mb-1 flex items-center gap-1">
+                                  <Clock className="w-2.5 h-2.5" />
+                                  {ruleById.has(tx.rule_id)
+                                    ? `Triggered by: ${ruleById.get(tx.rule_id)!.recipientLabel || intervalLabelsShort[ruleById.get(tx.rule_id)!.interval] || "scheduled rule"}`
+                                    : "Triggered by a rule that's since been deleted"}
+                                </div>
+                              )}
                               <div className="text-[11px] text-white/25 flex items-center gap-2">
                                 {new Date(tx.created_at).toLocaleString()}
                                 {tx.tx_hash && (
