@@ -25,10 +25,10 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/agents", label: "Agents", icon: Users },
     { href: "/rules", label: "Rules", icon: GitMerge },
-    { href: "/multi-send", label: "Multi-Send", icon: ListChecks, badge: "Soon" },
     { href: "/activity", label: "Activity", icon: Activity },
     { href: "/analytics", label: "Analytics", icon: BarChart3 },
     { href: "/x402-demo", label: "x402 Demo", icon: Zap },
+    { href: "/multi-send", label: "Multi-Send", icon: ListChecks, badge: "Soon" },
   ];
 
   return (
