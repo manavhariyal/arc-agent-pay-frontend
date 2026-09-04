@@ -46,6 +46,7 @@ const intervalLabels: Record<string, string> = {
   daily: "Every Day",
   weekly: "Every Week",
   monthly: "Every Month",
+  once: "One-Time",
 };
 
 const intervalHours: Record<string, number> = {
@@ -348,11 +349,16 @@ export default function Rules() {
                             </div>
                             <div className="text-[10px] text-white/20 mt-1 font-mono">{truncateAddress(rule.recipient)}</div>
 
-                            {/* Next run time */}
+                            {/* Next run time — reflects the parent agent's real status too,
+                                so this never promises a run the scheduler will actually skip. */}
                             {rule.status === "active" && rule.interval && (
                               <div className="mt-1.5 flex items-center gap-1 text-[10px] text-[#3AB4FF]/70 font-mono">
                                 <Clock className="w-2.5 h-2.5" />
-                                {getNextRunLabel(rule.interval, (rule as any).lastExecutedAt)}
+                                {getNextRunLabel(
+                                  rule.interval,
+                                  (rule as any).lastExecutedAt,
+                                  agents.find((a) => a.id === rule.agentId)?.status === "active"
+                                )}
                               </div>
                             )}
 
