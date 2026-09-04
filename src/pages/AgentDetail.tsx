@@ -218,7 +218,7 @@ export default function AgentDetail() {
   const amountSpentViaRules = agentRules.reduce(
     (sum, r) => sum + parseFloat(r.amount || "0") * (r.executionCount || 0), 0
   );
-  const nextAction = getSoonestNextRun(agentRules);
+  const nextAction = getSoonestNextRun(agentRules, agent?.status === "active");
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
