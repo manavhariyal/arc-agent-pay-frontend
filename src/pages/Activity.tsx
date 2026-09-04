@@ -242,6 +242,12 @@ export default function ActivityFeed() {
                                     : "Triggered by a rule that's since been deleted"}
                                 </div>
                               )}
+                              {tx.status === "failed" && tx.error_message && (
+                                <div className="text-[11px] text-rose-400/90 mb-1 flex items-start gap-1">
+                                  <XCircle className="w-2.5 h-2.5 mt-0.5 shrink-0" />
+                                  <span>{tx.error_message}</span>
+                                </div>
+                              )}
                               <div className="text-[11px] text-white/25 flex items-center gap-2">
                                 {new Date(tx.created_at).toLocaleString()}
                                 {tx.tx_hash && (
