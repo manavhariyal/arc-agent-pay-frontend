@@ -185,8 +185,12 @@ export default function Rules() {
                   <TabsTrigger value="recurring" className="rounded-full font-semibold text-sm data-[state=active]:bg-[#0B3FD1] data-[state=active]:text-white">
                     Recurring
                   </TabsTrigger>
-                  <TabsTrigger value="one-time" className="rounded-full font-semibold text-sm data-[state=active]:bg-[#0B3FD1] data-[state=active]:text-white">
-                    One-time
+                  <TabsTrigger
+                    value="one-time"
+                    disabled
+                    className="rounded-full font-semibold text-sm data-[state=active]:bg-[#0B3FD1] data-[state=active]:text-white opacity-40 cursor-not-allowed"
+                  >
+                    One-time <span className="ml-1 text-[9px] uppercase text-amber-400">Soon</span>
                   </TabsTrigger>
                 </TabsList>
 
