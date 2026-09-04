@@ -6,9 +6,11 @@ import { Label } from '@/components/ui/label'
 import { useWallet } from '@/hooks/useWallet'
 import { useUserBalance } from '@/hooks/useUserBalance'
 import { useSendPayment } from '@/hooks/useSendPayment'
-import { Copy, Zap, CheckCircle2, ExternalLink } from 'lucide-react'
+import { Copy, Zap, CheckCircle2, ExternalLink, AlertTriangle } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
-import { ARC_NETWORK } from '@/config/arc-network'
+import { ARC_NETWORK, arcTestnet } from '@/config/arc-network'
+import { useBalance } from 'wagmi'
+import { formatUnits } from 'viem'
 
 const TREASURY_ADDRESS = '0x48f40e29eb0aef155c3dac794d7a34d95bddc918'
 
@@ -27,6 +29,18 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
 
   const { send, hash, isConfirmed, error, reset } = useSendPayment()
 
+  // The connected wallet's actual on-chain USDC balance — what you're really
+  // limited by when depositing, as opposed to userBalance (your in-app deposited total).
+  const { data: walletBalanceData } = useBalance({
+    address: address as `0x${string}` | undefined,
+    chainId: arcTestnet.id,
+    query: { enabled: !!address },
+  })
+  const walletBalance = walletBalanceData
+    ? parseFloat(formatUnits(walletBalanceData.value, walletBalanceData.decimals))
+    : null
+  const exceedsWalletBalance = walletBalance !== null && parseFloat(amount || '0') > walletBalance
+
   const copyAddress = () => {
     navigator.clipboard.writeText(TREASURY_ADDRESS)
     toast({ title: 'Copied!', description: 'Treasury address copied.' })
@@ -34,6 +48,14 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
 
   const handleDeposit = async () => {
     if (!amount || parseFloat(amount) <= 0) return
+    if (exceedsWalletBalance) {
+      toast({
+        title: 'Amount exceeds your wallet balance',
+        description: `You only have ${walletBalance?.toFixed(4)} USDC in your connected wallet.`,
+        variant: 'destructive',
+      })
+      return
+    }
     setStep('sending')
     reset()
     // Uses the same properly wallet-connector-aware send path as the rest
@@ -131,16 +153,22 @@ export function DepositDialog({ open, onClose }: DepositDialogProps) {
                   </button>
                 ))}
               </div>
-              {amount && parseFloat(amount) > 0 && (
+              {amount && parseFloat(amount) > 0 && !exceedsWalletBalance && (
                 <p className="text-xs text-white/30">
                   {'Funds ' + Math.floor(parseFloat(amount)) + ' hours of 1 USDC/hr payments'}
+                </p>
+              )}
+              {exceedsWalletBalance && (
+                <p className="text-xs text-rose-400 flex items-center gap-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                  {`Exceeds your wallet balance (${walletBalance?.toFixed(4)} USDC available)`}
                 </p>
               )}
             </div>
 
             <Button
               onClick={handleDeposit}
-              disabled={!amount || parseFloat(amount) <= 0 || !isConnected}
+              disabled={!amount || parseFloat(amount) <= 0 || !isConnected || exceedsWalletBalance}
               className="w-full h-11 bg-gradient-to-r from-[#049CAE] to-[#0B3FD1] text-white rounded-xl font-bold disabled:opacity-40"
             >
               <Zap className="w-4 h-4 mr-2" />
