@@ -111,7 +111,7 @@ export function useSpendingRules() {
               agent_id: input.agentId,
               name: input.recipientLabel || `Rule for ${input.agentName}`,
               amount: parseFloat(input.amount),
-              interval: input.interval || 'daily',
+              interval: input.interval || (input.type === 'one-time' ? 'once' : 'daily'),
               recipient_address: input.recipient,
               circle_wallet_id: CIRCLE_WALLET_ID,
               owner_address: ownerKey,
