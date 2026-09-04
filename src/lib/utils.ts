@@ -24,8 +24,21 @@ const RULE_INTERVAL_HOURS: Record<string, number> = {
 };
 
 /** Computes when a scheduled rule will next run, based on its interval and last execution.
- *  Mirrors the backend's isRuleDue() cadence logic so the two never disagree. */
-export function getNextRunLabel(interval: string, lastExecutedAt: string | null | undefined): string {
+ *  Mirrors the backend's isRuleDue() cadence logic so the two never disagree.
+ *  `agentActive` must reflect the rule's PARENT AGENT's status, not just the rule's own
+ *  status — the scheduler skips execution for any rule whose agent isn't active, so a
+ *  next-run estimate that ignores this would show a countdown that never actually fires. */
+export function getNextRunLabel(
+  interval: string,
+  lastExecutedAt: string | null | undefined,
+  agentActive: boolean = true
+): string {
+  if (!agentActive) return "Agent is paused — won't run until reactivated";
+
+  if (interval === "once") {
+    return lastExecutedAt ? "Already sent (one-time)" : "Runs once, within 5 min of activation";
+  }
+
   const hours = RULE_INTERVAL_HOURS[interval];
   if (!hours) return "";
   if (!lastExecutedAt) return "First run within 5 min of activation";
@@ -39,17 +52,23 @@ export function getNextRunLabel(interval: string, lastExecutedAt: string | null 
   return `Next run ${next.toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}`;
 }
 
-/** Returns the soonest next-run label across a set of active rules, or null if none are active. */
-export function getSoonestNextRun(rules: { interval: string; status: string; lastExecutedAt?: string | null }[]): string | null {
-  const active = rules.filter((r) => r.status === "active" && RULE_INTERVAL_HOURS[r.interval]);
+/** Returns the soonest next-run label across a set of active rules for ONE agent, or null
+ *  if none are eligible to run. Pass the agent's own active status so the label never
+ *  promises a run that the scheduler will actually skip. */
+export function getSoonestNextRun(
+  rules: { interval: string; status: string; lastExecutedAt?: string | null }[],
+  agentActive: boolean = true
+): string | null {
+  if (!agentActive) return rules.length > 0 ? "Agent is paused — no rules will run until reactivated" : null;
+  const active = rules.filter((r) => r.status === "active" && (RULE_INTERVAL_HOURS[r.interval] || r.interval === "once"));
   if (active.length === 0) return null;
   let soonest: { time: number; label: string } | null = null;
   for (const r of active) {
-    const hours = RULE_INTERVAL_HOURS[r.interval];
+    const hours = r.interval === "once" ? 0 : RULE_INTERVAL_HOURS[r.interval];
     const base = r.lastExecutedAt ? new Date(r.lastExecutedAt).getTime() : Date.now();
     const nextTime = r.lastExecutedAt ? base + hours * 60 * 60 * 1000 : Date.now();
     if (!soonest || nextTime < soonest.time) {
-      soonest = { time: nextTime, label: getNextRunLabel(r.interval, r.lastExecutedAt) };
+      soonest = { time: nextTime, label: getNextRunLabel(r.interval, r.lastExecutedAt, true) };
     }
   }
   return soonest?.label ?? null;
