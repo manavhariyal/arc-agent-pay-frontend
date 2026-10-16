@@ -43,16 +43,17 @@
 .lp .btn-ghost{color:var(--ink-2);border-color:var(--line)}
 .lp .btn-ghost:hover{color:var(--ink);background:rgba(255,255,255,.05)}
 .lp .btn-lg{min-height:52px;padding:0 32px;font-size:15px}
-.lp .hero-wrap{position:relative;height:235svh}
-.lp .stage{position:sticky;top:0;height:100svh;overflow:hidden;background:#000308;--p:0;--mx:0;--my:0;--iw:max(130vw,1000px);--ih:calc(var(--iw)*.4266)}
+.lp .hero-wrap{position:relative;height:205svh;margin-bottom:-85svh}
+.lp main{position:relative;z-index:6;background:var(--bg);box-shadow:0 -40px 60px 10px var(--bg)}
+.lp .stage{position:sticky;top:0;height:100svh;overflow:hidden;background:#000308;--p:0;--mx:0;--my:0;--iw:max(100vw,min(130vw,204svh),1000px);--ih:calc(var(--iw)*.4266)}
 .lp .layer{position:absolute;left:50%;width:var(--iw);margin-left:calc(var(--iw)/-2);will-change:transform}
 .lp .layer img{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none}
 .lp .earth{z-index:1;top:calc(60svh - var(--ih)*.32);transform-origin:50% 32%;transform:translate3d(calc(var(--mx)*-6px),calc(var(--my)*-4px + var(--p)*-9svh),0) scale(calc(1 + var(--p)*.12))}
 .lp .mtn::before{content:"";position:absolute;left:0;right:0;bottom:0;height:22%;background:linear-gradient(180deg,rgba(7,9,13,0),var(--bg));z-index:1}
 .lp .mtn::after{content:"";position:absolute;left:0;right:0;top:calc(100% - 1px);height:130svh;background:var(--bg)}
-.lp .mback{z-index:2;top:calc(62svh - var(--ih)*.37);transform:translate3d(calc(var(--mx)*-14px),calc(var(--my)*-8px + var(--p)*-75svh),0)}
+.lp .mback{z-index:2;top:calc(67svh - var(--ih)*.37);transform:translate3d(calc(var(--mx)*-14px),calc(var(--my)*-8px + var(--p)*-75svh),0)}
 .lp .mback img{transform:scaleX(-1);filter:brightness(.95) saturate(1.2)}
-.lp .mfront{z-index:5;top:calc(92svh - var(--ih)*.73);transform:translate3d(calc(var(--mx)*-30px),calc(var(--my)*-14px + var(--p)*-115svh),0)}
+.lp .mfront{z-index:5;top:calc(99svh - var(--ih)*.73);transform:translate3d(calc(var(--mx)*-30px),calc(var(--my)*-14px + var(--p)*-115svh),0)}
 .lp .mfront img{filter:brightness(.92)}
 .lp .fog{position:absolute;z-index:3;left:-10%;right:-10%;top:64svh;height:26svh;background:linear-gradient(180deg,transparent,rgba(40,110,230,.24),transparent);filter:blur(22px);pointer-events:none;animation:lp-fogDrift 16s ease-in-out infinite alternate}
 .lp #gl{position:absolute;inset:0;z-index:4;width:100%;height:100%;mix-blend-mode:screen;pointer-events:none;opacity:calc(1 - var(--p)*1.5)}
